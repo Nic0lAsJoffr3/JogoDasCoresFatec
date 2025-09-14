@@ -157,7 +157,7 @@ if (type === "PlayerEnd") {
     getLocalStorage("RespostaCorreta", (resposta) => {
         for (let i = 0; i < 6; i++) {
             document.getElementById(`opcao${i + 1}`).classList.add(
-                resposta == i ? "Correta" : "Errada"
+                resposta == -1? "Wait" : (resposta == i ? "Correta" : "Errada")
             );
         }
     });

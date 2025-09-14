@@ -260,6 +260,14 @@ label {
     box-shadow: none;
     cursor: default;
 }
+.radio-option .Wait:disabled+label {
+    font-weight: 400;
+    color: #fda76e;
+    border: none;
+    box-shadow: none;
+    cursor: default;
+}
+
 
 .PorcentagemSelecionados {
     font-weight: 400;
