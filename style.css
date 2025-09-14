@@ -216,6 +216,22 @@ input[type="button"].end {
 }
 
 ::selection {
-    background: #ff00007e;
+    background: #ffffff7e;
+}
+.JogadoresRespostas .CorretaRespostas {
+    color: #4fff5d;
 }
 
+.JogadoresRespostas .ErradaRespostas {
+    color: #ff4747;
+}
+
+.JogadoresRespostas .WaitRespostas {
+    color: #fda76e;
+}
+
+#EsperandoJogadores {
+    position: absolute;
+    width: 100vw;
+    top: 30%;
+}

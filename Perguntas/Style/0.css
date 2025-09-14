@@ -268,25 +268,6 @@ label {
     margin: 0 auto;
     width: 25%;
 }
-
-.CorretaTv+label .PorcentagemSelecionados {
+.CorretaTv + label .PorcentagemSelecionados{
     width: 100%;
-}
-
-.JogadoresRespostas .CorretaRespostas {
-    color: #4fff5d;
-}
-
-.JogadoresRespostas .ErradaRespostas {
-    color: #ff4747;
-}
-
-.JogadoresRespostas .WaitRespostas {
-    color: #fda76e;
-}
-
-#EsperandoJogadores {
-    position: absolute;
-    width: 100vw;
-    top: 30%;
 }
