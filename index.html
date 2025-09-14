@@ -212,13 +212,6 @@
             update(jogadorRef, {
                 [RespontaIDLocal]: RespostaDoJogador
             })
-
-            const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
-            const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
-            update(PontuaçãoRef, {
-                [RespontaIDLocal]: [Pontos]
-            })
-
         }
 
 
@@ -401,6 +394,13 @@
             document.getElementById("Time").innerText = textoTime;
         }
         else if (!FimDeTempo) {
+
+            const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
+            const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
+            const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
+            update(PontuaçãoRef, {
+                [RespontaIDLocal]: [Pontos]
+            })
             document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
             FimDeTempo = true;
         }
