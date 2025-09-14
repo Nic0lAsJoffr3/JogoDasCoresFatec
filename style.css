@@ -228,6 +228,7 @@ input[type="button"].end {
 
 .JogadoresRespostas .WaitRespostas {
     color: #919191;
+    text-decoration: line-through;
 }
 
 #EsperandoJogadores {
