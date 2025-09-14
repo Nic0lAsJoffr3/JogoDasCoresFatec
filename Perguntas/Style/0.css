@@ -260,14 +260,6 @@ label {
     box-shadow: none;
     cursor: default;
 }
-.radio-option .Wait:disabled+label {
-    font-weight: 400;
-    color: #fda76e;
-    border: none;
-    box-shadow: none;
-    cursor: default;
-}
-
 
 .PorcentagemSelecionados {
     font-weight: 400;
@@ -276,6 +268,25 @@ label {
     margin: 0 auto;
     width: 25%;
 }
-.CorretaTv + label .PorcentagemSelecionados{
+
+.CorretaTv+label .PorcentagemSelecionados {
     width: 100%;
+}
+
+.JogadoresRespostas .CorretaRespostas {
+    color: #4fff5d;
+}
+
+.JogadoresRespostas .ErradaRespostas {
+    color: #ff4747;
+}
+
+.JogadoresRespostas .WaitRespostas {
+    color: #fda76e;
+}
+
+#EsperandoJogadores {
+    position: absolute;
+    width: 100vw;
+    top: 30%;
 }

@@ -219,17 +219,3 @@ input[type="button"].end {
     background: #ff00007e;
 }
 
-.JogadoresRespostas .CorretaRespostas {
-    color: #4fff5d;
-}
-
-.JogadoresRespostas .ErradaRespostas,
-.JogadoresRespostas .WaitRespostas {
-    color: #ff4747;
-}
-
-#EsperandoJogadores {
-    position: absolute;
-    width: 100vw;
-    top: 30%;
-}
