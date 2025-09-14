@@ -125,7 +125,7 @@
         const ListaRespostas = RespostasGerais.split(",").map(Number);
         let i = 0;
         document.querySelectorAll(".PorcentagemSelecionados").forEach(item => {
-            let porcentagem = ListaRespostas.filter(itemList => itemList == i && item).length / ListaRespostas.length * 100;
+            let porcentagem = ListaRespostas.filter(itemList => itemList == i && itemList != -1).length / ListaRespostas.length * 100;
             porcentagem = Math.round(porcentagem);
             item.style.display = "block";
             item.innerText = porcentagem + "%";

@@ -212,6 +212,13 @@
             update(jogadorRef, {
                 [RespontaIDLocal]: RespostaDoJogador
             })
+
+            const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
+            const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? Tempo * 123 : 0;
+            update(PontuaçãoRef, {
+                [RespontaIDLocal]: RespostaDoJogador
+            })
+
         }
 
 
@@ -244,7 +251,11 @@
                 nome: nome,
                 perguntas: {
                     "0": -1,
+                },
+                pontos: {
+                    "0": 0
                 }
+
             })
                 .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
                 .catch(err => console.error(err));
@@ -269,6 +280,9 @@
             nome: name,
             perguntas: {
                 "0": -1,
+            },
+            pontos: {
+                "0": 0
             }
         })
             .then(() => {
