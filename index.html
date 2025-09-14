@@ -395,6 +395,7 @@
         }
         else if (!FimDeTempo) {
 
+            const jogadorRefKey = localStorage.getItem('jogadorRefKey');
             const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
             const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
             const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
