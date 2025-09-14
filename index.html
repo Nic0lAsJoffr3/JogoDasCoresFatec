@@ -214,9 +214,9 @@
             })
 
             const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
-            const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? Tempo * 123 : 0;
+            const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
             update(PontuaçãoRef, {
-                [RespontaIDLocal]: RespostaDoJogador
+                [RespontaIDLocal]: [Pontos]
             })
 
         }

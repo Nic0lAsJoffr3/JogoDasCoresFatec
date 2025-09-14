@@ -163,7 +163,7 @@
                     div.classList.add("CorretaRespostas")
                 else
                     div.classList.add("ErradaRespostas")
-                if (RespostasID != -1)
+                if (RespostasID != -1 && jogador.perguntas[RespostasID] != -1)
                     TodasAsRespostas.push(jogador.perguntas[RespostasID]);
                 div.textContent = jogador.nome; // mostra apenas o nome
                 nameContainer.appendChild(div);
