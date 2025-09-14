@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo das Cores - Host</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="./IMG/icon.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bangers&family=Lilita+One&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&family=Squada+One&display=swap"
+        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="Every">
+        <h1>Jogo das Cores - Host</h1>
+        <div class="adm">
+            <h1 id="MsgConfirmação" class="NunitoSans"></h1>
+            <input type="button" class="start" id="HostStart" value="Iniciar Host" style="display: none;"
+                onclick="IniciarHost()" />
+            <input type="button" class="end" id="HostEnd" value="Encerar Host" style="display: none;"
+                onclick="EncerarHost()" />
+            <br>
+            <input type="button" class="goQuestion" id="goQuestion" value="Iniciar a 1º Pergunta"
+                onclick="IniciarPergunta()" style="display: none;">
+            <input type="button" class="goQuestion" id="goQuestionTo" value="Iniciar a 2º Pergunta"
+                onclick="PassarPergunta()" style="display: none;">
+            <input type="button" class="goQuestion" id="notgoQuestionTo" value="Voltar para a 1º Pergunta"
+                onclick="VoltarPergunta()" style="display: none;">
+        </div>
+    </div>
+</body>
+
+<script type="module">/* FireBase: */
+    // Importa funções do Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, get, remove, update, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    // Configuração do seu projeto
+    const firebaseConfig = {
+        apiKey: "AIzaSyCWWVFgQu2RBg6Y3TylBqz7UtMRl1V7Tgc",
+        authDomain: "jogoteoriadascoresfatec.firebaseapp.com",
+        databaseURL: "https://jogoteoriadascoresfatec-default-rtdb.firebaseio.com",
+        projectId: "jogoteoriadascoresfatec",
+        storageBucket: "jogoteoriadascoresfatec.firebasestorage.app",
+        messagingSenderId: "1029972349838",
+        appId: "1:1029972349838:web:5ab64e63a30bf5e1594adf",
+        measurementId: "G-6GDTJRFBVV"
+    };
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    let respostaID = -1
+    window.IniciarHost = function () {
+        const jogoRef = ref(db, "Host"); // referência para o status do jogo
+        set(jogoRef, { iniciado: true, PerguntasStart: false, PerguntasID: 0, Time: 0 }); // grava que o jogo foi iniciado
+    }
+    window.EncerarHost = function () {
+        const jogoRef = ref(db, "Host"); // referência para o status do jogo
+        set(jogoRef, { iniciado: false, PerguntasStart: false, PerguntasID: 0, Time: 0 }); // grava que o jogo foi iniciado
+    }
+    window.IniciarPergunta = function () {
+
+        const jogoRef = ref(db, "Host"); // referência para o status do jogo
+        let agora =  Date.now();
+        
+        console.log(agora)
+        set(jogoRef, { iniciado: true, PerguntasStart: true, PerguntasID: 0, Time: agora }); // grava que o jogo foi iniciado
+    }
+    window.PassarPergunta = function () {
+        const jogoRef = ref(db, "Host"); // referência para o status do jogo
+        let PerguntaIDLet;
+        onValue(jogoRef, (snapshot) => {
+            const dados = snapshot.val();
+            PerguntaIDLet = dados.PerguntasID + 1;
+
+        });
+        let agora =  Date.now();
+        set(jogoRef, { iniciado: true, PerguntasStart: true, PerguntasID: PerguntaIDLet, Time: agora}); // grava que o jogo foi iniciado
+    }
+    window.VoltarPergunta = function () {
+        const jogoRef = ref(db, "Host"); // referência para o status do jogo
+        let PerguntaIDLet;
+        onValue(jogoRef, (snapshot) => {
+            const dados = snapshot.val();
+            PerguntaIDLet = dados.PerguntasID - 1;
+
+        });
+        let agora =  Date.now();
+        set(jogoRef, { iniciado: true, PerguntasStart: true, PerguntasID: PerguntaIDLet, Time: agora }); // grava que o jogo foi iniciado
+    }
+
+
+    // Escuta alterações no status do jogo
+    let jogoRef = ref(db, "Host");
+    onValue(jogoRef, (snapshot) => {
+
+        const dados = snapshot.val();
+        respostaID = dados.PerguntasID;
+
+        if (!(dados && dados.iniciado)) {
+            document.getElementById("HostStart").style.display = 'block';
+            document.getElementById("HostEnd").style.display = 'none';
+            document.getElementById("goQuestion").style.display = 'none';
+            document.getElementById("goQuestionTo").style.display = 'none';
+            document.getElementById("notgoQuestionTo").style.display = 'none';
+            document.getElementById("MsgConfirmação").innerText = "O Host está inativo.";
+            return;
+        }
+        document.getElementById("HostStart").style.display = 'none';
+        document.getElementById("HostEnd").style.display = 'block';
+        document.getElementById("MsgConfirmação").innerText = "O Host está ativo!";
+        if (!dados.PerguntasStart) {
+            document.getElementById("goQuestion").style.display = 'block';
+            document.getElementById("goQuestionTo").style.display = 'none';
+            document.getElementById("notgoQuestionTo").style.display = 'none';
+            return;
+        }
+        document.getElementById("goQuestion").style.display = 'none';
+        document.getElementById("goQuestionTo").style.display = 'block';
+
+        //ativa o botão de voltar
+        if (dados.PerguntasID > 0)
+            document.getElementById("notgoQuestionTo").style.display = 'block';
+        else
+            document.getElementById("notgoQuestionTo").style.display = 'none';
+
+        //modifica os textos dos botões
+        document.getElementById("notgoQuestionTo").value = `Voltar para a ${dados.PerguntasID}º Pergunta`;
+        document.getElementById("goQuestionTo").value = `Iniciar a ${dados.PerguntasID + 2}º Pergunta`;
+    });
+    
+    
+</script>
+</html>

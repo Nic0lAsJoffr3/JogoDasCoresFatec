@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="./Style/0.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bangers&family=Lilita+One&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&family=Squada+One&display=swap"
+        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+    <div id="AreaQuestionario">
+        <h1 class="NunitoSans">O que o azul predominante nesta pintura remete?</h1>
+        <img class="ImgReferencia" src="./IMG/0.png">
+        <h2 class="NunitoSans">Van Gogh, Noite Estrelada (1889)</h2>
+        <br>
+        <div class="inputs" id="inputs">
+            <div class="radio-option"><input type="radio" id="opcao1" name="resposta" value="0">
+                <label for="opcao1">Tristeza e melancolia <div class="PorcentagemSelecionados" style="display: none;">0%
+                    </div></label><br>
+
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao2" name="resposta" value="1">
+                <label for="opcao2">Serenidade e contemplação <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao3" name="resposta" value="2">
+                <label for="opcao3">Raiva e agressividade <div class="PorcentagemSelecionados" style="display: none;">0%
+                    </div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao4" name="resposta" value="3">
+                <label for="opcao4">Mistério e espiritualidade <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao5" name="resposta" value="4">
+                <label for="opcao5">Esperança e vitalidade <div class="PorcentagemSelecionados" style="display: none;">
+                        0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao6" name="resposta" value="5">
+                <label for="opcao6">Confiança e estabilidade <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+            <button id="EnviarResposta" onclick="Responder()">Enviar resposta</button>
+        </div>
+    </div>
+    <div id="EsperandoJogadores" style="display: none;">
+        <h1>Esperando outros jogadores responderem.</h1>
+    </div>
+
+</body>
+<script>
+function getLocalStorage(key, callback) {
+    function handler(event) {
+        if (event.data.action === "getResponse" && event.data.key === key) {
+            callback(event.data.value);
+            window.removeEventListener("message", handler);
+        }
+    }
+    window.addEventListener("message", handler);
+    parent.postMessage({ action: "get", key }, window.origin);
+}
+
+function setLocalStorage(key, value) {
+    parent.postMessage({ action: "set", key, value }, window.origin);
+}
+
+const params = new URLSearchParams(window.location.search);
+const type = params.get("type");
+const RespostasGerais = params.get("Respostas");
+let RespostaJogador = -1;
+
+var pontos = ".";
+var reduzir = false;
+
+// -------- Player ----------
+if (type === "Player") {
+    getLocalStorage("RespostaDoJogador", (resposta) => {
+        RespostaJogador = resposta ?? -1;
+        for (let i = 0; i < 6; i++) {
+            document.getElementById(`opcao${i + 1}`).checked = (i == RespostaJogador);
+        }
+        if (RespostaJogador != -1) {
+            document.getElementById("AreaQuestionario").style.display = "none";
+            document.getElementById("EsperandoJogadores").style.display = "block";
+        }
+    });
+}
+
+function Responder() {
+    RespostaJogador = document.querySelector('input[name="resposta"]:checked')?.value ?? -1;
+    if (RespostaJogador != -1) {
+        document.getElementById("AreaQuestionario").style.display = "none";
+        document.getElementById("EsperandoJogadores").style.display = "block";
+    }
+    setLocalStorage("RespostaDoJogador", RespostaJogador);
+}
+
+// -------- TV ----------
+if (type === "Tv" || type === "TvFimDeJogo") {
+    document.querySelectorAll("label").forEach(label => label.classList.add("TVDisplay"));
+    document.querySelectorAll("input").forEach(input => input.style.display = "none");
+    for (let i = 0; i < 6; i++)
+        document.getElementById(`opcao${i + 1}`).disabled = true;
+    document.getElementById("EnviarResposta").style.display = "none";
+}
+
+// -------- TvFimDeJogo ----------
+if (type === "TvFimDeJogo") {
+    const ListaRespostas = RespostasGerais.split(",").map(Number);
+    let i = 0;
+    document.querySelectorAll(".PorcentagemSelecionados").forEach(item => {
+        let porcentagem = ListaRespostas.filter(itemList => itemList == i).length / ListaRespostas.length * 100;
+        item.style.display = "block";
+        item.innerText = porcentagem + "%";
+        i++;
+    });
+
+    getLocalStorage("RespostaCorreta", (resposta) => {
+        for (let i = 0; i < 6; i++) {
+            document.getElementById(`opcao${i + 1}`).classList.add(
+                resposta == i ? "CorretaTv" : "ErradaTv"
+            );
+        }
+    });
+}
+
+// -------- PlayerEnd ----------
+if (type === "PlayerEnd") {
+    document.getElementById("EnviarResposta").style.display = "none";
+
+    getLocalStorage("RespostaDoJogador", (resposta) => {
+        RespostaJogador = resposta ?? -1;
+        for (let i = 0; i < 6; i++) {
+            document.getElementById(`opcao${i + 1}`).disabled = true;
+            document.getElementById(`opcao${i + 1}`).checked = (i == RespostaJogador);
+        }
+        setLocalStorage("RespostaDoJogador", -1);
+    });
+
+    getLocalStorage("RespostaCorreta", (resposta) => {
+        for (let i = 0; i < 6; i++) {
+            document.getElementById(`opcao${i + 1}`).classList.add(
+                resposta == i ? "Correta" : "Errada"
+            );
+        }
+    });
+}
+</script>
+
+</html>
