@@ -225,6 +225,8 @@
             else {
                 const dados = snapshot.val();
                 const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
+                
+            const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
                 if (!jogadorRefKey) return;
                 if (dados.perguntas[RespontaIDLocal] == -1) {
                     if (RespostaDoJogador != -1 && !FimDeTempo) {
