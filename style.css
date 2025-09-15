@@ -236,3 +236,9 @@ input[type="button"].end {
     width: 100vw;
     top: 30%;
 }
+
+.QRcode{
+    width: 50vw;
+    height: 50vw;
+    margin: 0 auto;
+}

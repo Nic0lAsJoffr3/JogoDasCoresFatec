@@ -88,7 +88,7 @@
     onValue(jogoRef, (snapshot) => {
         const dados = snapshot.val();
         if (!dados.PerguntasStart) {
-            document.getElementById("Perguntas").innerHTML = "<h1>Esperando mais Jogadores...</h1>"
+            document.getElementById("Perguntas").innerHTML = `<h1>Esperando mais Jogadores...</h1> \n <img class="QRcode" src='./IMG/QR.jpeg'>`
             return;
         }
         tempoRef = dados.Time;
