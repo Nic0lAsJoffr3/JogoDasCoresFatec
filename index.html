@@ -198,6 +198,7 @@
     // Inicializa Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    let pontosGravados = -1;
     let JogadorOnline = false;
     let jogadorId = null; // guarda o ID do jogador atual
     setInterval(() => {
@@ -206,6 +207,7 @@
         if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
         const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
         const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
+        const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
         get(jogadorRef).then(snapshot => {
             if (!snapshot.exists()) {
                 // Nó removido por outra aba
@@ -230,11 +232,17 @@
                             [RespontaIDLocal]: RespostaDoJogador
                         })
                     }
-                    const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
-                    const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
+                }
+                if (!FimDeTempo) {
+                    if (pontosGravados === -1) {
+                        pontosGravados = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
+                    }
+                }
+                else if (pontosGravados != -1) {
                     update(PontuaçãoRef, {
-                        [RespontaIDLocal]: [Pontos]
+                        [RespontaIDLocal]: [pontosGravados]
                     })
+                    pontosGravados = -1;
                 }
             }
         });
