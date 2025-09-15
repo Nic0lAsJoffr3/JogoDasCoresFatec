@@ -201,21 +201,6 @@
     let JogadorOnline = false;
     let jogadorId = null; // guarda o ID do jogador atual
     setInterval(() => {
-        if (localStorage.getItem("RespontaID") == null) localStorage.setItem("RespostaID", -1);
-        const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-        if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
-        const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
-        if (!jogadorRefKey) return;
-        if (RespostaDoJogador != -1 && !FimDeTempo) {
-            const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
-            const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
-            update(jogadorRef, {
-                [RespontaIDLocal]: RespostaDoJogador
-            })
-        }
-
-
-
         const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
         get(jogadorRef).then(snapshot => {
             if (!snapshot.exists()) {
@@ -230,6 +215,28 @@
 
                 console.log("Jogador desconectado automaticamente (outra aba fechou)");
                 JogadorOnline = false;
+            }
+            else {
+                const dados = snapshot.val();
+                if (localStorage.getItem("RespontaID") == null) localStorage.setItem("RespostaID", -1);
+                const jogadorRefKey = localStorage.getItem('jogadorRefKey');
+                if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
+                const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
+                if (!jogadorRefKey) return;
+                if (dados.perguntas[RespontaIDLocal] == -1) {
+                    if (RespostaDoJogador != -1 && !FimDeTempo) {
+                        const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
+                        const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
+                        update(jogadorRef, {
+                            [RespontaIDLocal]: RespostaDoJogador
+                        })
+                    }
+                    const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
+                    const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
+                    update(PontuaçãoRef, {
+                        [RespontaIDLocal]: [Pontos]
+                    })
+                }
             }
         });
     }, 1000);
@@ -394,15 +401,6 @@
             document.getElementById("Time").innerText = textoTime;
         }
         else if (!FimDeTempo) {
-
-            const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
-            const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-            const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
-            const Pontos = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
-            const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
-            update(PontuaçãoRef, {
-                [RespontaIDLocal]: [Pontos]
-            })
             document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
             FimDeTempo = true;
         }

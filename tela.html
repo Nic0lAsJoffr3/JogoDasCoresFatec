@@ -146,6 +146,7 @@
         nameContainer.innerHTML = ""; // limpa antes de atualizar
 
         if (dados) {
+            TodasAsRespostas = [];
             // Para cada jogador, cria um elemento na tela
             Object.keys(dados).forEach((id) => {
                 if (!dados || !dados[id]) return;
