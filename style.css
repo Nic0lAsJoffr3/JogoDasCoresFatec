@@ -238,7 +238,7 @@ input[type="button"].end {
 }
 
 .QRcode{
-    width: 50vw;
-    height: 50vw;
+    width: 30vw;
+    height: 30vw;
     margin: 0 auto;
 }
