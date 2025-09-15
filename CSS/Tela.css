@@ -1,0 +1,11 @@
+    .Time {
+            font-family: "Lilita One", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: white;
+            font-size: 70px;
+            margin: 30px 110px 0 0;
+        }

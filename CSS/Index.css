@@ -1,0 +1,113 @@
+ html,
+        body {
+            overflow: hidden;
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+        }
+
+        .IPergunta {
+            padding: 0;
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        h1 {
+            z-index: 0;
+        }
+
+        .Time {
+            font-family: "Lilita One", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            color: white;
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 0;
+        }
+
+        @media (orientation: landscape) {
+            .Time {
+                font-size: 5vw;
+                margin: 15px 30px 0 0;
+            }
+
+            .EsperandoDiv h1 {
+                font-size: 7vh;
+            }
+
+            .JogoStartdontgo h1 {
+                font-size: 7vh;
+            }
+
+            .JogoStartdontgo h2 {
+                font-size: 6vh;
+            }
+        }
+
+        @media (orientation: portrait) {
+            .Time {
+                font-size: 10vw;
+                margin: 10px 20px 0 0;
+            }
+
+            .EsperandoDiv h1 {
+                font-size: 8.5vw;
+            }
+
+            .JogoStartdontgo h1 {
+                font-size: 10vw;
+            }
+
+            .JogoStartdontgo h2 {
+                font-size: 6vw;
+            }
+        }
+
+        .off {
+            z-index: 9;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transform: translate(15px, -5px);
+            font-size: 15px;
+            color: rgb(255, 170, 170);
+            width: 100px;
+            height: 100px;
+        }
+
+        .JogoStartdontgo {
+            width: 100vw;
+
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .JogoStartdontgo h2 {
+            font-family: "Nunito Sans", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+            font-variation-settings:
+                "wdth" 100,
+                "YTLC" 500;
+        }
+
+        .EsperandoDiv {
+            width: 100vw;
+
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
