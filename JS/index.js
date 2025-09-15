@@ -72,6 +72,7 @@ setInterval(() => {
                 }
             }
             else if (pontosGravados > 0) {
+                const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/`);
                 console.log(`O jogador Alcançou a pontuação de ${pontosGravados} este jogo. `)
                 update(jogadorRef, {
                     Pontos: pontosGravados
