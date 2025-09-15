@@ -167,253 +167,185 @@
 <script src="./JS/EntrarConfig.js"></script>
 
 <script type="module">
-    // Recebe mensagens do iframe
-    window.addEventListener("message", (event) => {
-        if (event.origin !== window.location.origin) return; // segurança
-        const { action, key, value } = event.data;
+ // Utilitários para localStorage
+function getLocal(key, fallback = null) {
+    const val = localStorage.getItem(key);
+    return val !== null ? val : fallback;
+}
+function setLocal(key, value) {
+    localStorage.setItem(key, value);
+}
 
-        if (action === "get") {
-            const stored = localStorage.getItem(key);
-            event.source.postMessage({ action: "getResponse", key, value: stored }, event.origin);
-        } else if (action === "set") {
-            localStorage.setItem(key, value);
-        }
-    });
+// Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    /* FireBase: */
-    // Importa funções do Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, push, set, onValue, get, remove, update, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    // Configuração do seu projeto
-    const firebaseConfig = {
-        apiKey: "AIzaSyCWWVFgQu2RBg6Y3TylBqz7UtMRl1V7Tgc",
-        authDomain: "jogoteoriadascoresfatec.firebaseapp.com",
-        databaseURL: "https://jogoteoriadascoresfatec-default-rtdb.firebaseio.com",
-        projectId: "jogoteoriadascoresfatec",
-        storageBucket: "jogoteoriadascoresfatec.firebasestorage.app",
-        messagingSenderId: "1029972349838",
-        appId: "1:1029972349838:web:5ab64e63a30bf5e1594adf",
-        measurementId: "G-6GDTJRFBVV"
-    };
-    // Inicializa Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    let pontosGravados = -1;
-    let JogadorOnline = false;
-    let jogadorId = null; // guarda o ID do jogador atual
-    setInterval(() => {
-        if (localStorage.getItem("RespontaID") == null) localStorage.setItem("RespostaID", -1);
-        const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-        if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
-        const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
-        const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
-        const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
-        get(jogadorRef).then(snapshot => {
-            if (!snapshot.exists()) {
-                // Nó removido por outra aba
-                localStorage.removeItem('nomeJogador');
-                localStorage.removeItem('jogadorRefKey');
+// Variáveis globais
+let pontosGravados = -1;
+let JogadorOnline = false;
+let RespostasID = -1;
+let FimDeTempo = false;
+let Tempo = 0, tempoRef, tempoDaPergunta;
+const jogoRef = ref(db, "Host");
 
-                document.getElementById('off').style.display = 'none';
-                document.querySelector('.Entrar').style.display = 'block';
-                document.querySelector('.Main').style.display = 'none';
-                document.querySelector(".Time").style.display = 'none';
+// Entrar no jogo
+window.EntrarNoJogo = function (name) {
+    const jogadoresRef = ref(db, 'Jogadores');
+    const novoJogadorRef = push(jogadoresRef);
 
-                console.log("Jogador desconectado automaticamente (outra aba fechou)");
-                JogadorOnline = false;
-            }
-            else {
-                const dados = snapshot.val();
-                const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
-                
-            const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
-                if (!jogadorRefKey) return;
-                if (dados.perguntas[RespontaIDLocal] == -1) {
-                    if (RespostaDoJogador != -1 && !FimDeTempo) {
-                        update(jogadorRef, {
-                            [RespontaIDLocal]: RespostaDoJogador
-                        })
-                    }
-                }
-                if (!FimDeTempo) {
-                    if (pontosGravados === -1) {
-                        pontosGravados = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
-                    }
-                }
-                else if (pontosGravados != -1) {
-                    update(PontuaçãoRef, {
-                        [RespontaIDLocal]: pontosGravados
-                    })
-                    pontosGravados = -1;
-                }
-            }
-        });
-    }, 1000);
-    window.addEventListener('load', () => {
-        const nome = localStorage.getItem('nomeJogador');
-        const jogadorRefKey = localStorage.getItem('jogadorRefKey');
+    setLocal('jogadorRefKey', novoJogadorRef.key);
+    setLocal('nomeJogador', name);
 
-        if (nome && jogadorRefKey) {
-            const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
+    set(novoJogadorRef, {
+        nome: name,
+        perguntas: { "0": -1 },
+        pontos: { "0": 0 }
+    }).then(() => {
+        JogadorOnline = true;
+        console.log("Jogador entrou no jogo");
+    }).catch(console.error);
 
-            set(jogadorRef, {
-                nome: nome,
-                perguntas: {
-                    "0": -1,
-                },
-                pontos: {
-                    "0": 0
-                }
+    onDisconnect(novoJogadorRef).remove();
+    Reiniciar();
+};
 
-            })
-                .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
-                .catch(err => console.error(err));
+// Sair do jogo
+window.SairDoJogo = function () {
+    const jogadorRefKey = getLocal('jogadorRefKey');
+    if (!jogadorRefKey) return;
 
-            onDisconnect(jogadorRef).remove();
-            document.getElementById('off').style.display = 'block';
-            document.querySelector('.Entrar').style.display = 'none';
-            document.querySelector('.Main').style.display = 'block';
-            document.querySelector(".Time").style.display = 'none';
-            Reiniciar();
-        }
-    });
-    window.EntrarNoJogo = function (name) {
-        const jogadoresRef = ref(db, 'Jogadores');
-        const novoJogadorRef = push(jogadoresRef); // cria nó único
+    remove(ref(db, `Jogadores/${jogadorRefKey}`)).catch(console.error);
 
-        // salva a referência no localStorage
-        localStorage.setItem('jogadorRefKey', novoJogadorRef.key);
+    JogadorOnline = false;
+    localStorage.removeItem('jogadorRefKey');
+    localStorage.removeItem('nomeJogador');
+    document.querySelector(".Main").innerHTML = "";
+    location.reload();
+};
 
-        // Cria os dados do jogador
-        set(novoJogadorRef, {
-            nome: name,
-            perguntas: {
-                "0": -1,
-            },
-            pontos: {
-                "0": 0
-            }
-        })
-            .then(() => {
-                console.log("Jogador entrou no jogo");
-                JogadorOnline = true;
-            })
-            .catch(err => console.error(err));
+// Atualização do jogo
+function atualizarJogo(dados) {
+    document.getElementById("TituloInicial").style.display = "block";
+    document.querySelector(".JogoStartdontgo").innerHTML = "";
+    document.querySelector(".Main").innerHTML = "";
+    document.getElementById("EntrarArea").style.display = "block";
 
-        Reiniciar();
-        // Remove o jogador quando desconectar
-        onDisconnect(novoJogadorRef).remove();
+    if (!(dados && dados.iniciado)) {
+        SairDoJogo();
+        document.querySelector(".ForaDoAr").style.display = 'block';
+        document.querySelector(".Every").style.display = 'none';
+        document.querySelector(".Time").style.display = 'none';
+        return;
     }
 
-    // Remove jogador manualmente (por exemplo, quando o host não iniciou)
-    window.SairDoJogo = function () {
-        const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-        if (!jogadorRefKey) return;
+    tempoRef = dados.Time;
 
-        const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
-        remove(jogadorRef)
-            .catch(err => console.error(err));
+    // Mostrar interface do jogo
+    document.querySelector(".ForaDoAr").style.display = 'none';
+    document.querySelector(".Every").style.display = 'block';
+    document.querySelector('.Main').style.display = 'block';
+    document.querySelector('.Main').innerHTML = `<div class="EsperandoDiv"><h1>Esperando a Partida Começar</h1></div>`;
 
-        JogadorOnline = false;
-        console.log("Jogador desconectado");
-        localStorage.removeItem('jogadorRefKey');
-        localStorage.removeItem('nomeJogador');
-        document.querySelector(".Main").innerHTML = "";
-        location.reload();
-    }
-
-    let Tempo = 0, tempoRef, tempoDaPergunta;
-    let RespostasID = -1;
-    let FimDeTempo = false;
-    let jogoRef = ref(db, "Host");
-    function atualizarJogo(dados) {
-        document.getElementById("TituloInicial").style.display = "block";
-        document.querySelector(".JogoStartdontgo").innerHTML = "";
-        document.querySelector(".Main").innerHTML = "";
-        document.getElementById("EntrarArea").style.display = "block";
-        if (!(dados && dados.iniciado)) {
-            // Sai do jogo e remove do DB
-            SairDoJogo();
-            document.querySelector(".ForaDoAr").style.display = 'block';
-            document.querySelector(".Every").style.display = 'none';
-            document.querySelector(".Time").style.display = 'none';
-            return;
-        }
-
-        tempoRef = dados.Time;
-        // Caso esteja logado:
-        document.querySelector(".ForaDoAr").style.display = 'none';
-        document.querySelector(".Every").style.display = 'block';
-        document.querySelector('.Main').style.display = 'block';
-
-        document.querySelector('.Main').innerHTML = `<div class="EsperandoDiv"><h1>Esperando a Partida Começar</h1></div>`;
-        if (!JogadorOnline) {
-            if (dados.PerguntasStart) {
-                document.getElementById('EntrarArea').style.display = 'none';
-                document.querySelector('.JogoStartdontgo').innerHTML = `<h1>Jogo já iniciado!</h1><br><h2>Espere o host iniciar novamente!</h2>`;
-            }
-            return;
-        }
+    // Se jogador não está online
+    if (!JogadorOnline) {
         if (dados.PerguntasStart) {
-            document.getElementById("TituloInicial").style.display = "none";
-            document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${dados.PerguntasID}.html?type=Player"></iframe>`;
-            document.querySelector(".Time").style.display = 'block';
-            RespostasID = dados.PerguntasID;
-            localStorage.setItem("RespontaID", dados.PerguntasID);
-
-        } else {
-            document.querySelector(".Time").style.display = 'none';
+            document.getElementById('EntrarArea').style.display = 'none';
+            document.querySelector('.JogoStartdontgo').innerHTML = `<h1>Jogo já iniciado!</h1><br><h2>Espere o host iniciar novamente!</h2>`;
         }
+        return;
     }
 
-    // Escuta em tempo real
-    onValue(jogoRef, (snapshot) => {
+    if (dados.PerguntasStart) {
+        document.getElementById("TituloInicial").style.display = "none";
+        document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${dados.PerguntasID}.html?type=Player"></iframe>`;
+        document.querySelector(".Time").style.display = 'block';
+        RespostasID = dados.PerguntasID;
+        setLocal("RespontaID", dados.PerguntasID);
+    } else {
+        document.querySelector(".Time").style.display = 'none';
+    }
+}
+
+// Reiniciar
+function Reiniciar() {
+    get(jogoRef).then((snapshot) => {
+        if (snapshot.exists()) atualizarJogo(snapshot.val());
+    }).catch(err => console.error("Erro ao reiniciar:", err));
+}
+
+// Escuta em tempo real
+onValue(jogoRef, (snapshot) => {
+    atualizarJogo(snapshot.val());
+});
+
+// Loop principal 
+setInterval(() => {
+    const jogadorRefKey = getLocal('jogadorRefKey');
+    if (!jogadorRefKey) return;
+
+    const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
+    const pontosRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
+    const perguntasRef = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
+
+    // Atualiza status do jogador
+    get(jogadorRef).then(snapshot => {
+        if (!snapshot.exists()) {
+            // Desconectado em outra aba
+            localStorage.removeItem('nomeJogador');
+            localStorage.removeItem('jogadorRefKey');
+            JogadorOnline = false;
+            document.getElementById('off').style.display = 'none';
+            document.querySelector('.Entrar').style.display = 'block';
+            document.querySelector('.Main').style.display = 'none';
+            document.querySelector(".Time").style.display = 'none';
+            console.log("Jogador desconectado automaticamente (outra aba fechou)");
+            return;
+        }
+
         const dados = snapshot.val();
-        atualizarJogo(dados);
+        const RespontaIDLocal = getLocal("RespontaID", -1);
+        const RespostaDoJogador = getLocal("RespostaDoJogador", -1);
+
+        // Salvar resposta
+        if (dados.perguntas?.[RespontaIDLocal] == -1 && RespostaDoJogador != -1 && !FimDeTempo) {
+            update(perguntasRef, { [RespontaIDLocal]: RespostaDoJogador });
+        }
+
+        // Calcular pontos
+        if (!FimDeTempo && pontosGravados === -1) {
+            pontosGravados = (RespostaDoJogador == getLocal("RespostaCorreta")) ? (Tempo * 123) : 0;
+        } else if (FimDeTempo && pontosGravados != -1) {
+            update(pontosRef, { [RespontaIDLocal]: pontosGravados });
+            pontosGravados = -1;
+        }
     });
 
-    // Função de reiniciar
-    function Reiniciar() {
-        // Pega os dados atuais **uma vez** e aplica a mesma lógica
-        get(jogoRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                const dados = snapshot.val();
-                atualizarJogo(dados);
-            }
-        }).catch((erro) => console.error("Erro ao reiniciar:", erro));
+    // Atualiza tempo
+    if (RespostasID == -1) return;
 
+    get(ref(db, "Respostas")).then(snapshot => {
+        if (snapshot.exists()) {
+            const dados = snapshot.val();
+            tempoDaPergunta = dados[RespostasID]?.Time;
+            setLocal("RespostaCorreta", dados[RespostasID]?.Resposta);
+        }
+    });
+
+    if (tempoRef > 1 && tempoDaPergunta > 0) {
+        Tempo = Math.ceil((Date.now() - tempoRef) / 1000 - tempoDaPergunta);
     }
 
-    setInterval(() => {
-
-        if (RespostasID == -1) return;
-
-        let respostaRef = ref(db, "Respostas");
-        get(respostaRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                let dados = snapshot.val();
-                tempoDaPergunta = dados[RespostasID].Time;
-                localStorage.setItem("RespostaCorreta", dados[RespostasID].Resposta)
-            }
-        });
-        if (tempoRef > 1 && tempoDaPergunta > 0) {
-            Tempo -= tempoRef - Date.now() + tempoDaPergunta * 1000;
-            Tempo /= 1000;
-            Tempo = -Math.ceil(Tempo);
-        }
-        else return;
-        if (Tempo >= 0) {
-            FimDeTempo = false;
-            const minutos = Math.floor(Tempo / 60);
-            const segundos = Tempo % 60;
-            const textoTime = (minutos > 9 ? minutos : "0" + minutos) + ":" + (segundos > 9 ? segundos : "0" + segundos);
-            document.getElementById("Time").innerText = textoTime;
-        }
-        else if (!FimDeTempo) {
-            document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
-            FimDeTempo = true;
-        }
-    }, 1000);
+    if (Tempo >= 0) {
+        FimDeTempo = false;
+        const minutos = Math.floor(Tempo / 60);
+        const segundos = Tempo % 60;
+        document.getElementById("Time").innerText = 
+            `${minutos.toString().padStart(2, "0")}:${segundos.toString().padStart(2, "0")}`;
+    } else if (!FimDeTempo) {
+        document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
+        FimDeTempo = true;
+    }
+}, 1000);
 
 </script>
 
