@@ -201,6 +201,9 @@
     let JogadorOnline = false;
     let jogadorId = null; // guarda o ID do jogador atual
     setInterval(() => {
+        if (localStorage.getItem("RespontaID") == null) localStorage.setItem("RespostaID", -1);
+        const jogadorRefKey = localStorage.getItem('jogadorRefKey');
+        if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
         const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
         get(jogadorRef).then(snapshot => {
             if (!snapshot.exists()) {
@@ -218,9 +221,6 @@
             }
             else {
                 const dados = snapshot.val();
-                if (localStorage.getItem("RespontaID") == null) localStorage.setItem("RespostaID", -1);
-                const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-                if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
                 const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
                 if (!jogadorRefKey) return;
                 if (dados.perguntas[RespontaIDLocal] == -1) {
