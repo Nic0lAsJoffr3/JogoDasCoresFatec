@@ -205,6 +205,7 @@
         const jogadorRefKey = localStorage.getItem('jogadorRefKey');
         if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
         const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
+        const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
         get(jogadorRef).then(snapshot => {
             if (!snapshot.exists()) {
                 // Nó removido por outra aba
@@ -225,8 +226,6 @@
                 if (!jogadorRefKey) return;
                 if (dados.perguntas[RespontaIDLocal] == -1) {
                     if (RespostaDoJogador != -1 && !FimDeTempo) {
-                        const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
-                        const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
                         update(jogadorRef, {
                             [RespontaIDLocal]: RespostaDoJogador
                         })
