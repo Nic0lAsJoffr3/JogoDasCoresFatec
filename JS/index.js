@@ -38,7 +38,6 @@ setInterval(() => {
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
     const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
     const RespontaIDLocal = localStorage.getItem("RespontaID").toString();
-    const PontuaçãoRef = ref(db, `Jogadores/${jogadorRefKey}/pontos/`);
     get(jogadorRef).then(snapshot => {
         if (!snapshot.exists()) {
             // Nó removido por outra aba
@@ -67,14 +66,15 @@ setInterval(() => {
                 }
             }
             if (!FimDeTempo) {
+                const Valor = localStorage.getItem("ValorDaRespostaAtual");
                 if (pontosGravados <= 0) {
-                    pontosGravados = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? (Tempo * 123) : 0;
+                    pontosGravados = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? ((Tempo * 123) * Valor) : 0;
                 }
             }
             else if (pontosGravados > 0) {
                 console.log(`O jogador Alcançou a pontuação de ${pontosGravados} este jogo. `)
-                update(PontuaçãoRef, {
-                    [RespontaIDLocal]: pontosGravados
+                update(jogadorRef, {
+                    Pontos: pontosGravados
                 })
                 pontosGravados = -1;
             }
@@ -93,9 +93,7 @@ window.addEventListener('load', () => {
             perguntas: {
                 "0": -1,
             },
-            pontos: {
-                "0": 0
-            }
+            pontos: 0
 
         })
             .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
@@ -122,9 +120,7 @@ window.EntrarNoJogo = function (name) {
         perguntas: {
             "0": -1,
         },
-        pontos: {
-            "0": 0
-        }
+        pontos: 0
     })
         .then(() => {
             console.log("Jogador entrou no jogo");
@@ -226,6 +222,7 @@ setInterval(() => {
             let dados = snapshot.val();
             tempoDaPergunta = dados[RespostasID].Time;
             localStorage.setItem("RespostaCorreta", dados[RespostasID].Resposta)
+            localStorage.setItem("ValorDaRespostaAtual", dados[RespostasID].Valor)
         }
     });
     if (tempoRef > 1 && tempoDaPergunta > 0) {
