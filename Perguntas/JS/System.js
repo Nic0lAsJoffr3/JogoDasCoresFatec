@@ -1,15 +1,14 @@
-// Componentes exenciais //
-const H1EsperandoJogadores = document.createElement("h1");
-const EsperandoJogadores = document.createElement("div");
+// ---------------- COMPONENTES ---------------- //
+const H1Esperando = document.createElement("h1");
+H1Esperando.innerText = "Esperando outros jogadores responderem";
 
-H1EsperandoJogadores.innerText = "Esperando outros jogadores responderem";
-EsperandoJogadores.appendChild(H1EsperandoJogadores);
+const EsperandoJogadores = document.createElement("div");
 EsperandoJogadores.id = "EsperandoJogadores";
 EsperandoJogadores.style.display = "none";
-
+EsperandoJogadores.appendChild(H1Esperando);
 document.body.appendChild(EsperandoJogadores);
 
-// System //
+// ---------------- LOCALSTORAGE VIA postMessage ---------------- //
 function getLocalStorage(key, callback) {
     function handler(event) {
         if (event.data.action === "getResponse" && event.data.key === key) {
@@ -25,15 +24,13 @@ function setLocalStorage(key, value) {
     parent.postMessage({ action: "set", key, value }, window.origin);
 }
 
+// ---------------- PARAMS ---------------- //
 const params = new URLSearchParams(window.location.search);
 const type = params.get("type");
 const RespostasGerais = params.get("Respostas");
 let RespostaJogador = -1;
 
-var pontos = ".";
-var reduzir = false;
-
-// -------- Player ---------- //
+// ---------------- PLAYER ---------------- //
 if (type === "Player") {
     getLocalStorage("RespostaDoJogador", (resposta) => {
         RespostaJogador = resposta ?? -1;
@@ -44,29 +41,32 @@ if (type === "Player") {
         }
     });
 }
-// -------- TV ---------- //
+
+// ---------------- TV ---------------- //
 if (type === "Tv" || type === "TvFimDeJogo") {
     document.querySelectorAll("label").forEach(label => label.classList.add("TVDisplay"));
     document.querySelectorAll("input").forEach(input => input.style.display = "none");
-    document.getElementById("EnviarResposta").style.display = "none";
+    const btnEnviar = document.getElementById("EnviarResposta");
+    if (btnEnviar) btnEnviar.style.display = "none";
+
     Tv();
 }
 
-// -------- TvFimDeJogo ---------- //
+// ---------------- TV FIM DE JOGO ---------------- //
 if (type === "TvFimDeJogo") {
-    const ListaRespostas = RespostasGerais.split(",").map(Number);
-    let i = 0;
-    document.querySelectorAll(".PorcentagemSelecionados").forEach(item => {
-        let porcentagem = ListaRespostas.filter(itemList => itemList == i).length / ListaRespostas.filter(itemList => itemList != -1).length * 100;
-        porcentagem = Math.round(porcentagem);
+    const ListaRespostas = JSON.parse(RespostasGerais);
+    document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
+        const totalRespondidos = ListaRespostas.filter(r => r != -1).length;
+        const porcentagem = totalRespondidos ? Math.round(ListaRespostas.filter(r => r == i).length / totalRespondidos * 100) : 0;
         item.style.display = "block";
         item.innerText = porcentagem + "%";
-        i++;
     });
     TvFimDeJogo();
 }
-// -------- PlayerEnd ---------- //
+
+// ---------------- PLAYER END ---------------- //
 if (type === "PlayerEnd") {
-    document.getElementById("EnviarResposta").style.display = "none";
+    const btnEnviar = document.getElementById("EnviarResposta");
+    if (btnEnviar) btnEnviar.style.display = "none";
     PlayerEnd();
 }
