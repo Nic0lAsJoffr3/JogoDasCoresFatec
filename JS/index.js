@@ -1,7 +1,6 @@
-import "./System.js"
+import {  db, ref, push, set, onValue, get, remove, update, onDisconnect } from "./System.js";
 let pontosGravados = -1;
 let JogadorOnline = false;
-let jogadorId = null; // guarda o ID do jogador atual
 setInterval(() => {
     if (localStorage.getItem("RespontaID") == null) localStorage.setItem("RespostaID", -1);
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');

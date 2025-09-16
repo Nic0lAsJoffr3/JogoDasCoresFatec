@@ -1,4 +1,4 @@
-import "./System.js"
+import { db, ref, set, onValue } from "./System.js";
 let respostaID = -1
 window.IniciarHost = function () {
     const jogoRef = ref(db, "Host"); // referência para o status do jogo

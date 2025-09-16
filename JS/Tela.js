@@ -1,4 +1,4 @@
-import "./System.js"
+import {  db, ref, onValue, get } from "./System.js";
 let jogoRef = ref(db, "Host");
 let tempoRef = 0, Tempo = 0;
 let tempoDaPergunta;
