@@ -122,16 +122,19 @@ setInterval(() => {
         const segundos = Tempo % 60;
         const textoTime = (minutos > 9 ? minutos : "0" + minutos) + ":" + (segundos > 9 ? segundos : "0" + segundos);
         document.getElementById("Time").innerText = textoTime;
-    } 
+    }
 
-    // Quando o tempo acabar, vai para a tela final
+    // Quando o tempo acabar, vai para a tela final (só se ainda não carregou)
     if (Tempo <= 0 && !FimDeTempo) {
-        document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
+        const iframe = document.querySelector('.IPergunta');
+        if (!iframe || !iframe.src.includes("PlayerEnd")) {
+            document.querySelector('.Main').innerHTML =
+                `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
+        }
         FimDeTempo = true;
     }
 
 }, 1000);
-
 
 
 // Função Interna //
@@ -152,24 +155,31 @@ function atualizarJogo(dados) {
     document.querySelector(".ForaDoAr").style.display = 'none';
     document.querySelector(".Every").style.display = 'block';
     document.querySelector('.Main').style.display = 'block';
-    document.querySelector('.Main').innerHTML = `<div class="EsperandoDiv"><h1>Esperando a Partida Começar</h1></div>`;
 
     if (!JogadorOnline) {
         if (dados.PerguntasStart) {
             document.getElementById('EntrarArea').style.display = 'none';
-            document.querySelector('.JogoStartdontgo').innerHTML = `<h1>Jogo já iniciado!</h1><br><h2>Espere o host iniciar novamente!</h2>`;
+            document.querySelector('.JogoStartdontgo').innerHTML =
+                `<h1>Jogo já iniciado!</h1><br><h2>Espere o host iniciar novamente!</h2>`;
         }
         return;
     }
 
     if (dados.PerguntasStart) {
         document.getElementById("TituloInicial").style.display = "none";
-        document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${dados.PerguntasID}.html?type=Player"></iframe>`;
+        // só cria o iframe se ainda não existir ou se mudou de pergunta
+        const iframe = document.querySelector('.IPergunta');
+        if (!iframe || !iframe.src.includes(`Perguntas/${dados.PerguntasID}.html?type=Player`)) {
+            document.querySelector('.Main').innerHTML =
+                `<iframe class="IPergunta" src="./Perguntas/${dados.PerguntasID}.html?type=Player"></iframe>`;
+        }
         document.querySelector(".Time").style.display = 'block';
         RespostasID = dados.PerguntasID;
         localStorage.setItem("RespostaID", dados.PerguntasID);
     } else {
         document.querySelector(".Time").style.display = 'none';
+        document.querySelector('.Main').innerHTML =
+            `<div class="EsperandoDiv"><h1>Esperando a Partida Começar</h1></div>`;
     }
 }
 
