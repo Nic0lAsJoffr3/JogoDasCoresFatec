@@ -1,3 +1,4 @@
+import "./System.js"
 let pontosGravados = -1;
 let JogadorOnline = false;
 let jogadorId = null; // guarda o ID do jogador atual

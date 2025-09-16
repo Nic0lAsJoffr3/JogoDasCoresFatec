@@ -1,7 +1,4 @@
-
-
-
-
+import "./System.js"
 let jogoRef = ref(db, "Host");
 let tempoRef = 0, Tempo = 0;
 let tempoDaPergunta;
