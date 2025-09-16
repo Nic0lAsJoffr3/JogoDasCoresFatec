@@ -205,7 +205,7 @@ window.addEventListener('load', () => {
 
         set(jogadorRef, {
             nome: nome,
-            perguntas: { "0": -1 },
+            perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
             pontos: 0
         })
             .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
@@ -227,7 +227,7 @@ window.EntrarNoJogo = function (name) {
 
     set(novoJogadorRef, {
         nome: name,
-        perguntas: { "0": -1 },
+        perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
         pontos: 0
     })
         .then(() => { console.log("Jogador entrou no jogo"); JogadorOnline = true; })
