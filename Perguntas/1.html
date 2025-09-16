@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/fonts.css">
+    <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="./Style/style.css">
+    <link rel="stylesheet" href="./Style/1.css">
+</head>
+
+<body>
+    <div id="AreaQuestionario">
+        <h1 class="NunitoSans">O amarelo vibrante das flores pode evocar:</h1>
+        <img class="ImgReferencia" src="./IMG/1.jpg">
+        <h2 class="NunitoSans">“Os Girassóis” – Vincent van Gogh</h2>
+        <br>
+        <div class="inputs" id="inputs">
+
+            <div class="radio-option"><input type="radio" id="opcao1" name="resposta" value="0">
+                <label for="opcao1">Nostalgia suave e melancólica <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao2" name="resposta" value="1">
+                <label for="opcao2">Alegria controlada e racional <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao3" name="resposta" value="2">
+                <label for="opcao3">Neutralidade contemplativa <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao4" name="resposta" value="3">
+                <label for="opcao4">Sofisticação silenciosa <div class="PorcentagemSelecionados" style="display: none;">
+                        0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao5" name="resposta" value="4">
+                <label for="opcao5">Energia explosiva e espontânea <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+
+            <div class="radio-option"><input type="radio" id="opcao6" name="resposta" value="5">
+                <label for="opcao6">Vitalidade intensa com leve tensão emociona <div class="PorcentagemSelecionados"
+                        style="display: none;">0%</div></label><br>
+            </div>
+
+            <button id="EnviarResposta" onclick="Responder()">Enviar resposta</button>
+        </div>
+    </div>
+</body>
+<script src="./JS/6options.js"></script>
+<script src="./JS/System.js"></script>
+
+</html>

@@ -28,20 +28,20 @@
 }
 
 .radio-option input:checked+label:before {
-    box-shadow: #131c68 0px 0px 5px;
-    border-color: #2534b9;
+    box-shadow: #686213 0px 0px 5px;
+    border-color: #b9af25;
     --angleinput: -180deg;
-    background-color: #2c3bc5;
+    background-color: #c5b62c;
     transform: rotate(var(--angleinput)) translateY(-2px);
     width: 24px;
     border-radius: 47%;
     border-bottom-right-radius: 25%;
-    border-top-right-radius: 25%;
+    border-top-left-radius: 25%;
     transition: 750ms;
 }
 
 .radio-option input:checked+label {
-    color: #e3e6ff;
+    color: #fff8e3;
     transition: 500ms cubic-bezier(0.7, 0.41, 0.66, 0.98);
 }
 
@@ -64,8 +64,8 @@
 
 .inputs button:focus {
     outline: none;
-    background-color: #2c3bc5;
-    box-shadow: #5f6ce2 0px 0px 10px;
+    background-color: #c5a92c;
+    box-shadow: #e2ca5f 0px 0px 10px;
     transform: translateY(-30px) scale(1.05);
     --radiusbutton: 20px;
     transition: 1s;

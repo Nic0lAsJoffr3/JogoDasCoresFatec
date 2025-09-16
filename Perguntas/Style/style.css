@@ -1,0 +1,204 @@
+body {
+    background-image: none;
+}
+
+.radio-option label {
+    display: block;
+    cursor: pointer;
+}
+
+input {
+    display: none;
+}
+
+label {
+    color: white;
+    margin: 0 0 0 5px;
+    padding: 0;
+    font-size: 20px;
+}
+
+
+
+@media (orientation: portrait) {
+    h1 {
+        font-size: 30px;
+        margin: 70px 0 20px 0;
+    }
+
+    h2 {
+        margin-top: 5px;
+        font-size: 15px;
+    }
+
+    .ImgReferencia {
+        display: block;
+        height: 30vh;
+        margin: 0 auto;
+        border-radius: 30px;
+    }
+
+    .inputs {
+        margin: 20px auto;
+        overflow: hidden;
+        width: 80vw;
+        display: grid;
+    }
+
+    .radio-option input:checked+label {
+        font-weight: bold;
+    }
+}
+
+@media (orientation: landscape) {
+    h1 {
+        font-size: 35px;
+        margin: 10px 0 20px 0;
+    }
+
+    .ImgReferencia {
+        display: block;
+        height: 50vh;
+        margin: 0 auto;
+        border-radius: 30px;
+    }
+
+    label {
+        color: white;
+        margin: 20px 0 0 20px;
+        padding: 0;
+        font-size: 30px;
+    }
+
+    .inputs {
+        width: 80vw;
+        height: 30vh;
+        margin: 0 10vw;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        text-align: center;
+    }
+
+    .inputs button {
+        width: 30vw;
+        grid-column: 1 / 4;
+        margin: 0 auto;
+        transform: translateY(0px);
+    }
+
+    .inputs button:focus {
+        transform: scale(1.01);
+    }
+
+    .radio-option input+label:before {
+        transform: translate(-10px, -3px) rotate(var(--angleinput));
+        width: 30px;
+        height: 30px;
+    }
+
+    .radio-option input:checked+label:before {
+        transform: translate(0px, -3px) rotate(var(--angleinput));
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+    }
+}
+
+.radio-option input+.TVDisplay:before {
+    display: none;
+}
+
+.CorretaTv+label {
+    color: #7fff7f;
+    text-shadow: #4a7c4a 0px 0px 5px;
+    transform: scale(1.3) translateY(-5px);
+    transition: 1s;
+}
+
+.ErradaTv+label {
+    color: #ff5454;
+    text-decoration: line-through;
+    text-decoration-color: #ff54547e;
+    transition: 1s;
+}
+
+.radio-option input:disabled:not(:checked)+label:before {
+    border: 3px solid #979797;
+    border-radius: 50%;
+    cursor: default;
+}
+
+.radio-option .Correta:disabled:not(:checked)+label:before {
+    border: 3px solid #43f84c;
+    border-radius: 50%;
+    cursor: default;
+}
+
+.radio-option .Errada:disabled:not(:checked)+label:before {
+    border: 3px solid #f35252;
+    border-radius: 50%;
+    cursor: default;
+    transition: 2s;
+}
+
+.radio-option .Correta:disabled:checked+label:before {
+    background-color: #33ff00;
+    border: none;
+    box-shadow: none;
+    cursor: default;
+    animation: Rodar 1s 300ms forwards;
+
+}
+
+.radio-option .Errada:disabled:checked+label:before {
+    background-color: red;
+    border: none;
+    box-shadow: none;
+    cursor: default;
+    animation: Rodar 1s 200ms forwards;
+
+}
+
+@keyframes Rodar {
+    0% {
+
+        --angleinput: 0deg;
+    }
+
+    100% {
+
+        --angleinput: 360deg;
+        border-radius: 50%;
+        width: 20px;
+    }
+}
+
+.radio-option .Errada:disabled+label {
+    font-weight: 400;
+    color: #ffd9d9;
+    border: none;
+    box-shadow: none;
+    cursor: default;
+}
+
+.radio-option .Correta:disabled+label {
+    font-weight: 400;
+    color: #ddffd9;
+    border: none;
+    box-shadow: none;
+    cursor: default;
+}
+
+
+.PorcentagemSelecionados {
+    font-weight: 400;
+    position: absolute;
+    text-align: center;
+    margin: 0 auto;
+    width: 25%;
+}
+
+.CorretaTv+label .PorcentagemSelecionados {
+    width: 100%;
+}
