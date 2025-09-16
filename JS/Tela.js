@@ -53,7 +53,7 @@ setInterval(() => {
         document.getElementById("Jogadores").classList.remove("JogadoresRespostas");
     } else if (!FimDeTempo) {
         document.getElementById("Perguntas").innerHTML = `
-            <iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=TvFimDeJogo&Respostas=${JSON.stringify(TodasAsRespostas)}"></iframe>
+            <iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=TvFimDeJogo&Respostas=${encodeURIComponent(JSON.stringify(TodasAsRespostas))}"></iframe>
         `;
         FimDeTempo = true;
     } else {
@@ -100,4 +100,19 @@ onValue(jogadoresRef, (snapshot) => {
         div.textContent = `${jogador.nome}: ${jogador.pontos}`;
         container.appendChild(div);
     });
+});
+
+// ---------------- POSTMESSAGE HANDLER PARA IFRAME ---------------- //
+window.addEventListener("message", (event) => {
+    const data = event.data;
+    if (!data || !data.action) return;
+
+    if (data.action === "get") {
+        const value = localStorage.getItem(data.key);
+        event.source.postMessage({ action: "getResponse", key: data.key, value }, event.origin);
+    }
+
+    if (data.action === "set") {
+        localStorage.setItem(data.key, data.value);
+    }
 });

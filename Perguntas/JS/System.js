@@ -53,14 +53,22 @@ if (type === "Tv" || type === "TvFimDeJogo") {
 }
 
 // ---------------- TV FIM DE JOGO ---------------- //
-if (type === "TvFimDeJogo") {
-    const ListaRespostas = JSON.parse(RespostasGerais);
+let ListaRespostas = [];
+if (type === "TvFimDeJogo" && RespostasGerais) {
+    try {
+        ListaRespostas = JSON.parse(decodeURIComponent(RespostasGerais));
+    } catch (e) {
+        console.error("Erro ao ler ListaRespostas:", e);
+        ListaRespostas = [];
+    }
+
     document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
         const totalRespondidos = ListaRespostas.filter(r => r != -1).length;
         const porcentagem = totalRespondidos ? Math.round(ListaRespostas.filter(r => r == i).length / totalRespondidos * 100) : 0;
         item.style.display = "block";
         item.innerText = porcentagem + "%";
     });
+
     TvFimDeJogo();
 }
 
