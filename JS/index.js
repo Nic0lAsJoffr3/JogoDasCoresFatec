@@ -161,10 +161,13 @@ function atualizarJogo(dados) {
             document.getElementById('EntrarArea').style.display = 'none';
             document.querySelector('.JogoStartdontgo').innerHTML =
                 `<h1>Jogo já iniciado!</h1><br><h2>Espere o host iniciar novamente!</h2>`;
+        } else {
+            document.querySelector(".Time").style.display = 'none';
+            document.querySelector('.Main').innerHTML =
+                `<div class="EsperandoDiv"><h1>Esperando a Partida Começar</h1></div>`;
         }
         return;
     }
-
     if (dados.PerguntasStart) {
         document.getElementById("TituloInicial").style.display = "none";
         // só cria o iframe se ainda não existir ou se mudou de pergunta
