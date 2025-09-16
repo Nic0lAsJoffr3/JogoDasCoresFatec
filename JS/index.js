@@ -61,19 +61,22 @@ setInterval(() => {
                     })
                 }
             }
-            if (!FimDeTempo) {
-                if (pontosGravados <= 0) {
-                    pontosGravados = RespostaDoJogador == localStorage.getItem("RespostaCorreta") ? ((Math.max(Tempo, 0) * 123) * Valor) : 0;
-                }
+            // Atualiza pontos se o jogador respondeu corretamente e ainda não gravou
+            if (RespostaDoJogador != -1 && RespostaDoJogador == localStorage.getItem("RespostaCorreta") && pontosGravados <= 0) {
+                const valorResposta = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
+                pontosGravados = Math.max(Tempo, 0) * 123 * valorResposta;
             }
-            else if (pontosGravados > 0) {
-                console.log(`O jogador Alcançou a pontuação de ${pontosGravados} este jogo.`)
-                pontosGravados += dados.pontos;
-                update(jogadorRef, {
-                    pontos: pontosGravados
-                })
-                console.log(`A pontuação atual do jogador ${dados.nome} é ${dados.pontos}`)
-                pontosGravados = -1;
+            // Grava no banco quando o tempo acabar
+            if (FimDeTempo && pontosGravados > 0) {
+                get(jogadorRef).then(snapshot => {
+                    if (snapshot.exists()) {
+                        const dados = snapshot.val();
+                        const novaPontuacao = (dados.pontos || 0) + pontosGravados;
+                        update(jogadorRef, { pontos: novaPontuacao });
+                        console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
+                        pontosGravados = -1;
+                    }
+                });
             }
         }
     });
@@ -89,7 +92,7 @@ setInterval(() => {
     if (tempoRef > 1 && tempoDaPergunta > 0) {
         Tempo -= tempoRef - Date.now() + tempoDaPergunta * 1000;
         Tempo /= 1000;
-        Tempo = Math.max(0, -Math.ceil(Tempo)); 
+        Tempo = Math.max(0, -Math.ceil(Tempo));
     }
     else return;
     if (Tempo >= 0) {
