@@ -41,7 +41,7 @@ setInterval(() => {
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
 
-    // Const //
+    // Constantes //
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
     const RespostaIDLocal = String(localStorage.getItem("RespostaID") || -1);
     const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
@@ -81,7 +81,7 @@ setInterval(() => {
                 pontosGravados = Math.max(Tempo, 0) * 123 * Valor;
             }
 
-            // Grava pontos no Firebase quando o tempo acabou ou todos responderam
+            // Grava pontos no Firebase quando o tempo acabar
             if (FimDeTempo && pontosGravados > 0 && RespostaDoJogador != -1) {
                 get(jogadorRef).then(snapshot => {
                     if (snapshot.exists()) {
@@ -122,27 +122,16 @@ setInterval(() => {
         const segundos = Tempo % 60;
         const textoTime = (minutos > 9 ? minutos : "0" + minutos) + ":" + (segundos > 9 ? segundos : "0" + segundos);
         document.getElementById("Time").innerText = textoTime;
+    } 
+
+    // Quando o tempo acabar, vai para a tela final
+    if (Tempo <= 0 && !FimDeTempo) {
+        document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
+        FimDeTempo = true;
     }
 
-    // Verifica se todos responderam
-    get(ref(db, 'Jogadores')).then(snapshot => {
-        if (snapshot.exists()) {
-            const jogadores = snapshot.val();
-            let todosResponderam = true;
-            Object.values(jogadores).forEach(j => {
-                if (j.perguntas && j.perguntas[RespostasID] == -1) {
-                    todosResponderam = false;
-                }
-            });
-
-            // Vai para a tela final se o tempo acabou ou todos responderam
-            if ((Tempo <= 0 || todosResponderam) && !FimDeTempo) {
-                document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
-                FimDeTempo = true;
-            }
-        }
-    });
 }, 1000);
+
 
 
 // Função Interna //
