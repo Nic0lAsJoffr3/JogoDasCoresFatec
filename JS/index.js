@@ -29,17 +29,17 @@ setInterval(() => {
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
 
     // Const //
-
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
     const RespostaIDLocal = localStorage.getItem("RespostaID").toString();
     const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
-    const Valor = Number(localStorage.getItem("ValorDaRespostaAtual"));
+    const Valor = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
 
     if (!jogadorRefKey) return;
 
     const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/`);
     const jogadorRefPerguntas = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
 
+    // Verifica se o jogador ainda existe no DB
     get(jogadorRef).then(snapshot => {
         if (!snapshot.exists()) {
             // Nó removido por outra aba
@@ -51,62 +51,76 @@ setInterval(() => {
             document.querySelector(".Time").style.display = 'none';
             console.log("Jogador desconectado automaticamente (outra aba fechou)");
             JogadorOnline = false;
-        }
-        else {
+        } else {
             const dados = snapshot.val();
-            if (dados.perguntas[RespostaIDLocal] == -1) {
-                if (RespostaDoJogador != -1 && !FimDeTempo) {
-                    update(jogadorRefPerguntas, {
-                        [RespostaIDLocal]: RespostaDoJogador
-                    })
-                }
+
+            // Atualiza resposta do jogador se ainda não tiver sido enviada
+            if (dados.perguntas[RespostaIDLocal] == -1 && RespostaDoJogador != -1 && !FimDeTempo) {
+                update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogador });
             }
+
             // Atualiza pontos se o jogador respondeu corretamente e ainda não gravou
             if (RespostaDoJogador != -1 && RespostaDoJogador == localStorage.getItem("RespostaCorreta") && pontosGravados <= 0) {
-                const valorResposta = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
-                pontosGravados = Math.max(Tempo, 0) * 123 * valorResposta;
+                pontosGravados = Math.max(Tempo, 0) * 123 * Valor;
             }
+
             // Grava no banco quando o tempo acabar
             if (FimDeTempo && pontosGravados > 0) {
-                get(jogadorRef).then(snapshot => {
-                    if (snapshot.exists()) {
-                        const dados = snapshot.val();
-                        const novaPontuacao = (dados.pontos || 0) + pontosGravados;
-                        update(jogadorRef, { pontos: novaPontuacao });
-                        console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
-                        pontosGravados = -1;
-                    }
-                });
+                const novaPontuacao = (dados.pontos || 0) + pontosGravados;
+                update(jogadorRef, { pontos: novaPontuacao });
+                console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
+                pontosGravados = -1;
             }
         }
     });
+
     if (RespostasID == -1) return;
-    get(respostaRef).then((snapshot) => {
+
+    // Pega dados da pergunta atual
+    get(respostaRef).then(snapshot => {
         if (snapshot.exists()) {
             const dados = snapshot.val();
             tempoDaPergunta = dados[RespostasID].Time;
-            localStorage.setItem("RespostaCorreta", dados[RespostasID].Resposta)
-            localStorage.setItem("ValorDaRespostaAtual", dados[RespostasID].Valor)
+            localStorage.setItem("RespostaCorreta", dados[RespostasID].Resposta);
+            localStorage.setItem("ValorDaRespostaAtual", dados[RespostasID].Valor);
         }
     });
+
+    // Calcula o tempo restante
     if (tempoRef > 1 && tempoDaPergunta > 0) {
-        Tempo -= tempoRef - Date.now() + tempoDaPergunta * 1000;
-        Tempo /= 1000;
-        Tempo = Math.max(0, -Math.ceil(Tempo));
-    }
-    else return;
-    if (Tempo >= 0) {
+        Tempo = Math.max(0, Math.ceil((tempoDaPergunta * 1000 - (Date.now() - tempoRef)) / 1000));
+    } else return;
+
+    // Atualiza display do tempo
+    if (Tempo > 0) {
         FimDeTempo = false;
         const minutos = Math.floor(Tempo / 60);
         const segundos = Tempo % 60;
         const textoTime = (minutos > 9 ? minutos : "0" + minutos) + ":" + (segundos > 9 ? segundos : "0" + segundos);
         document.getElementById("Time").innerText = textoTime;
     }
-    else if (!FimDeTempo) {
-        document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
-        FimDeTempo = true;
-    }
+
+    // Verifica se todos responderam
+    get(ref(db, 'Jogadores')).then(snapshot => {
+        if (snapshot.exists()) {
+            const jogadores = snapshot.val();
+            let todosResponderam = true;
+            Object.values(jogadores).forEach(j => {
+                if (j.perguntas && j.perguntas[RespostasID] == -1) {
+                    todosResponderam = false;
+                }
+            });
+
+            // Vai para a tela final se o tempo acabou ou se todos responderam
+            if ((Tempo <= 0 || todosResponderam) && !FimDeTempo) {
+                document.querySelector('.Main').innerHTML = `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
+                FimDeTempo = true;
+            }
+        }
+    });
+
 }, 1000);
+
 
 // Função Interna //
 
