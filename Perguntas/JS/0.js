@@ -1,9 +1,9 @@
-export function Player(RespostaJogador) {
+function Player(RespostaJogador) {
     for (let i = 0; i < 6; i++) {
         document.getElementById(`opcao${i + 1}`).checked = (i == RespostaJogador);
     }
 }
-export function Responder() {
+function Responder() {
     RespostaJogador = document.querySelector('input[name="resposta"]:checked')?.value ?? -1;
     if (RespostaJogador != -1) {
         document.getElementById("AreaQuestionario").style.display = "none";
@@ -11,11 +11,11 @@ export function Responder() {
     }
     setLocalStorage("RespostaDoJogador", RespostaJogador);
 }
-export function Tv() {
+function Tv() {
     for (let i = 0; i < 6; i++)
         document.getElementById(`opcao${i + 1}`).disabled = true;
 }
-export function TvFimDeJogo() {
+function TvFimDeJogo() {
     getLocalStorage("RespostaCorreta", (resposta) => {
         for (let i = 0; i < 6; i++) {
             document.getElementById(`opcao${i + 1}`).classList.add(
@@ -24,7 +24,7 @@ export function TvFimDeJogo() {
         }
     });
 }
-export function PlayerEnd() {
+function PlayerEnd() {
     getLocalStorage("RespostaDoJogador", (resposta) => {
         RespostaJogador = resposta ?? -1;
         for (let i = 0; i < 6; i++) {
