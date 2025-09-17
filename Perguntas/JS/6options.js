@@ -4,12 +4,14 @@ function Player(RespostaJogador) {
     }
 }
 function Responder() {
-    RespostaJogador = document.querySelector('input[name="resposta"]:checked')?.value ?? -1;
-    if (RespostaJogador != -1) {
-        document.getElementById("AreaQuestionario").style.display = "none";
-        document.getElementById("EsperandoJogadores").style.display = "block";
-    }
-    setLocalStorage("RespostaDoJogador", RespostaJogador);
+    setTimeout(() => {
+        RespostaJogador = document.querySelector('input[name="resposta"]:checked')?.value ?? -1;
+        if (RespostaJogador != -1) {
+            document.getElementById("AreaQuestionario").style.display = "none";
+            document.getElementById("EsperandoJogadores").style.display = "block";
+        }
+        setLocalStorage("RespostaDoJogador", RespostaJogador);
+    }, 0.7);
 }
 function Tv() {
     for (let i = 0; i < 6; i++)

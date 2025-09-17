@@ -6,6 +6,7 @@ let jogadoresRef = ref(db, "Jogadores");
 let tempoRef = 0, Tempo = 0;
 let tempoDaPergunta;
 let RespostasID = -1;
+let AntigaRespostaID = -2;
 let FimDeTempo = false;
 let TodasAsRespostas = [];
 
@@ -52,6 +53,10 @@ setInterval(() => {
         document.getElementById("Time").innerText = textoTime;
         document.getElementById("Jogadores").classList.remove("JogadoresRespostas");
     } else if (!FimDeTempo) {
+        if (AntigaRespostaID != RespostasID) {
+            AntigaRespostaID = RespostasID;
+            TodasAsRespostas = [];
+        }
         document.getElementById("Perguntas").innerHTML = `
             <iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=TvFimDeJogo&Respostas=${encodeURIComponent(JSON.stringify(TodasAsRespostas))}"></iframe>
         `;
