@@ -1,5 +1,21 @@
 import { db, ref, onValue, get } from "./System.js";
 
+// ---------------- FUNÇÃO AUXILIAR ---------------- //
+function normalizarResposta(resp) {
+    if (resp == null || resp === -1 || resp === "null") return [-1];
+
+    if (typeof resp === "number") {
+        return [resp]; // já é número
+    }
+
+    if (typeof resp === "string") {
+        // "03" -> ["0","3"] -> [0,3]
+        return resp.split("").map(n => parseInt(n, 10));
+    }
+
+    return [-1];
+}
+
 // ---------------- VARIÁVEIS ---------------- //
 let jogoRef = ref(db, "Host");
 let jogadoresRef = ref(db, "Jogadores");
@@ -24,6 +40,12 @@ onValue(jogoRef, (snapshot) => {
     tempoRef = dados.Time;
     RespostasID = dados.PerguntasID;
 
+    // Resetar respostas quando trocar de pergunta
+    if (RespostasID !== AntigaRespostaID) {
+        AntigaRespostaID = RespostasID;
+        TodasAsRespostas = [];
+    }
+
     document.getElementById("Perguntas").innerHTML = `
         <iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=Tv"></iframe>
     `;
@@ -38,7 +60,7 @@ setInterval(() => {
         if (!snapshot.exists()) return;
         const dados = snapshot.val();
         tempoDaPergunta = dados[RespostasID].Time;
-        localStorage.setItem("RespostaCorreta", dados[RespostasID].Resposta);
+        localStorage.setItem("RespostaCorreta", JSON.stringify(normalizarResposta(dados[RespostasID].Resposta)));
     });
 
     if (!tempoRef || !tempoDaPergunta) return;
@@ -53,10 +75,6 @@ setInterval(() => {
         document.getElementById("Time").innerText = textoTime;
         document.getElementById("Jogadores").classList.remove("JogadoresRespostas");
     } else if (!FimDeTempo) {
-        if (AntigaRespostaID != RespostasID) {
-            AntigaRespostaID = RespostasID;
-            TodasAsRespostas = [];
-        }
         document.getElementById("Perguntas").innerHTML = `
             <iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=TvFimDeJogo&Respostas=${encodeURIComponent(JSON.stringify(TodasAsRespostas))}"></iframe>
         `;
@@ -88,18 +106,19 @@ onValue(jogadoresRef, (snapshot) => {
         const div = document.createElement("div");
         div.classList.add("jogadorName");
 
-        const respostaCorreta = localStorage.getItem("RespostaCorreta");
+        const respostaCorreta = JSON.parse(localStorage.getItem("RespostaCorreta") || "[-1]");
+        const respostaJogador = normalizarResposta(jogador.perguntas[RespostasID]);
 
-        if (jogador.perguntas[RespostasID] == -1) {
+        if (respostaJogador.includes(-1)) {
             div.classList.add("WaitRespostas");
-        } else if (jogador.perguntas[RespostasID] == respostaCorreta) {
+        } else if (respostaJogador.some(r => respostaCorreta.includes(r))) {
             div.classList.add("CorretaRespostas");
         } else {
             div.classList.add("ErradaRespostas");
         }
 
-        if (RespostasID != -1 && jogador.perguntas[RespostasID] != -1) {
-            TodasAsRespostas[RespostasID] = jogador.perguntas[RespostasID];
+        if (RespostasID !== -1 && !respostaJogador.includes(-1)) {
+            respostaJogador.forEach(r => TodasAsRespostas.push(r));
         }
 
         div.textContent = `${jogador.nome}: ${jogador.pontos}`;
