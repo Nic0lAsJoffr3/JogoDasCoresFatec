@@ -20,7 +20,7 @@ onValue(jogoRef, (snapshot) => {
 });
 
 // Flag global para controlar pontuação por pergunta
-let respondeuPorPergunta = {}; 
+let respondeuPorPergunta = {};
 
 setInterval(() => {
     // Inicializa localStorage que não existem
@@ -65,17 +65,32 @@ setInterval(() => {
         const respJogadorArray = RespostaDoJogadorStr.split("").map(n => parseInt(n, 10));
 
         // Calcula pontos se acertou e ainda não pontuou essa pergunta
-        
-        if (!respondeuPorPergunta[RespostaIDLocal] &&
-            respJogadorArray.some(r => respostaCorretaArray.includes(r)) &&
-            respJogadorArray.length > 0) {
-            
-            pontosGravados = Math.max(Tempo, 0) * 123 * Valor;
-            respondeuPorPergunta[RespostaIDLocal] = true;
+
+        if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
+            const totalCorretas = respostaCorretaArray.length;
+            const totalRespostas = respJogadorArray.length;
+
+            // Conta acertos
+            const acertos = respJogadorArray.filter(r => respostaCorretaArray.includes(r)).length;
+
+            // Conta erros (respostas do jogador que não estão nas corretas)
+            const erros = respJogadorArray.filter(r => !respostaCorretaArray.includes(r)).length;
+
+            // Calcula percentual de acerto considerando penalização por erro
+            let percentualAcerto = acertos / totalCorretas - erros / totalCorretas;
+
+            // Garante que o percentual não seja negativo
+            percentualAcerto = Math.max(percentualAcerto, 0);
+
+            if (percentualAcerto > 0) {
+                pontosGravados = Math.max(Tempo, 0) * 123 * Valor * percentualAcerto;
+                respondeuPorPergunta[RespostaIDLocal] = true;
+            }
         }
+        console.log(pontosGravados);
 
         // Grava pontos no Firebase quando o tempo acabar
-        if (FimDeTempo && pontosGravados >= 0 && respJogadorArray.length > 0) {
+        if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
             const novaPontuacao = (dados.pontos || 0) + pontosGravados;
             update(jogadorRef, { pontos: novaPontuacao })
                 .then(() => {
@@ -251,4 +266,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 1
+// 2
