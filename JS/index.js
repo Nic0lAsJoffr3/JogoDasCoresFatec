@@ -183,7 +183,6 @@ function atualizarJogo(dados) {
                 `<iframe class="IPergunta" src="./Perguntas/${dados.PerguntasID}.html?type=Player"></iframe>`;
         }
         document.querySelector(".Time").style.display = 'block';
-        RespostasID = dados.PerguntasID;
         localStorage.setItem("RespostaID", dados.PerguntasID);
     } else {
         document.querySelector(".Time").style.display = 'none';
@@ -266,4 +265,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 7
+// 8
