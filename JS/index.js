@@ -35,74 +35,90 @@ function enviarResposta(resposta) {
         .catch(err => console.error(err));
 }
 
+// Flag global para controlar pontuação por pergunta
+let respondeuPorPergunta = {}; 
+
 setInterval(() => {
-    // Inicializa localStorage se não existir
+    // Inicializa localStorage que não existem
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
 
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-    const RespostaIDLocal = Number(localStorage.getItem("RespostaID") || -1);
-    const RespostaDoJogadorRaw = localStorage.getItem("RespostaDoJogador")?.toString() || "-1";
+    const RespostaIDLocal = String(localStorage.getItem("RespostaID") || -1);
+    const RespostaDoJogadorStr = localStorage.getItem("RespostaDoJogador") || "";
     const Valor = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
 
-    if (!jogadorRefKey || RespostaIDLocal === -1) return;
-
+    if (!jogadorRefKey) return;
     const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/`);
     const jogadorRefPerguntas = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
 
     // Atualiza dados do jogador
     get(jogadorRef).then(snapshot => {
-        if (!snapshot.exists()) return;
+        if (!snapshot.exists()) {
+            // Jogador desconectado
+            localStorage.removeItem('nomeJogador');
+            localStorage.removeItem('jogadorRefKey');
+            document.getElementById('off').style.display = 'none';
+            document.querySelector('.Entrar').style.display = 'block';
+            document.querySelector('.Main').style.display = 'none';
+            document.querySelector(".Time").style.display = 'none';
+            console.log("Jogador desconectado automaticamente (outra aba fechou)");
+            return;
+        }
 
         const dados = snapshot.val();
 
-        // Salva a resposta do jogador se ainda não registrada
-        if (RespostaDoJogadorRaw !== "-1" && dados.perguntas[RespostaIDLocal] == -1) {
-            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorRaw })
-                .then(() => console.log(`Resposta ${RespostaDoJogadorRaw} gravada para pergunta ${RespostaIDLocal}`))
+        // Grava a resposta do jogador se ainda não foi registrada
+        if (RespostaDoJogadorStr && dados.perguntas[RespostaIDLocal] == -1) {
+            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorStr })
+                .then(() => console.log(`Resposta ${RespostaDoJogadorStr} gravada para pergunta ${RespostaIDLocal}`))
                 .catch(err => console.error("Erro ao gravar resposta:", err));
         }
 
-        // Se ainda não respondeu, não continua
-        if (RespostaDoJogadorRaw === "-1") return;
+        // --- Normaliza a resposta correta e do jogador como arrays de números ---
+        const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "";
+        const respostaCorretaArray = respostaCorretaRaw.split("").map(n => parseInt(n, 10));
+        const respJogadorArray = RespostaDoJogadorStr.split("").map(n => parseInt(n, 10));
 
-        // --- Normaliza respostas ---
-        const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "-1";
-        const respostaCorretaArray = respostaCorretaRaw.toString().split("").map(n => parseInt(n, 10));
-        const respostaJogadorArray = RespostaDoJogadorRaw.split("").map(n => parseInt(n, 10));
-
-        // --- Verifica acerto ---
-        const acertou = respostaJogadorArray.some(r => respostaCorretaArray.includes(r));
-
-        // --- Calcula pontos apenas uma vez ---
-        if (!respondeuEPontuou && acertou) {
+        // Calcula pontos se acertou e ainda não pontuou essa pergunta
+        if (!respondeuPorPergunta[RespostaIDLocal] &&
+            respJogadorArray.some(r => respostaCorretaArray.includes(r)) &&
+            respJogadorArray.length > 0) {
+            
             pontosGravados = Math.max(Tempo, 0) * 123 * Valor;
-            const novaPontuacao = (dados.pontos || 0) + pontosGravados;
+            respondeuPorPergunta[RespostaIDLocal] = true;
+        }
 
+        // Grava pontos no Firebase quando o tempo acabar
+        if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
+            const novaPontuacao = (dados.pontos || 0) + pontosGravados;
             update(jogadorRef, { pontos: novaPontuacao })
                 .then(() => {
                     console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
-                    respondeuEPontuou = true; // impede múltiplas gravações
+                    pontosGravados = -1;
                 })
                 .catch(err => console.error("Erro ao gravar pontos:", err));
         }
     });
 
+    if (RespostasID == -1) return;
+
     // Atualiza dados da pergunta
     get(respostaRef).then(snapshot => {
-        if (snapshot.exists() && RespostaIDLocal !== -1) {
+        if (snapshot.exists()) {
             const dadosPergunta = snapshot.val();
-            tempoDaPergunta = dadosPergunta[RespostaIDLocal].Time;
-            localStorage.setItem("RespostaCorreta", dadosPergunta[RespostaIDLocal].Resposta);
-            localStorage.setItem("ValorDaRespostaAtual", dadosPergunta[RespostaIDLocal].Valor);
+            tempoDaPergunta = dadosPergunta[RespostasID].Time;
+            localStorage.setItem("RespostaCorreta", dadosPergunta[RespostasID].Resposta);
+            localStorage.setItem("ValorDaRespostaAtual", dadosPergunta[RespostasID].Valor);
         }
     });
 
     // Calcula tempo restante
-    if (tempoRef > 0 && tempoDaPergunta > 0) {
-        const tempoPassado = Date.now() - tempoRef;
-        Tempo = Math.max(0, tempoDaPergunta - Math.floor(tempoPassado / 1000));
-    }
+    if (tempoRef > 1 && tempoDaPergunta > 0) {
+        Tempo -= tempoRef - Date.now() + tempoDaPergunta * 1000;
+        Tempo /= 1000;
+        Tempo = Math.max(0, -Math.ceil(Tempo));
+    } else return;
 
     // Atualiza timer visual
     if (Tempo >= 0) {
@@ -113,18 +129,17 @@ setInterval(() => {
         document.getElementById("Time").innerText = textoTime;
     }
 
-    // Quando o tempo acabar, vai para a tela final (só se ainda não carregou)
+    // Quando o tempo acabar, vai para a tela final
     if (Tempo <= 0 && !FimDeTempo) {
         const iframe = document.querySelector('.IPergunta');
         if (!iframe || !iframe.src.includes("PlayerEnd")) {
             document.querySelector('.Main').innerHTML =
-                `<iframe class="IPergunta" src="./Perguntas/${RespostaIDLocal}.html?type=PlayerEnd"></iframe>`;
+                `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
         }
         FimDeTempo = true;
-        respondeuEPontuou = false; // reseta para a próxima pergunta
     }
-
 }, 1000);
+
 
 
 
