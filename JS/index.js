@@ -9,7 +9,7 @@ let tempoRef;
 let RespostasID = -1;
 let jogoRef = ref(db, "Host");
 let respostaRef = ref(db, "Respostas");
-let pontosGravados = 0; // pontos calculados para a pergunta atual
+let pontosGravados = -1; // pontos calculados para a pergunta atual
 let FimDeTempo = false;
 let Tempo = 0;
 let tempoDaPergunta = 0;
@@ -267,4 +267,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 4
+// 5
