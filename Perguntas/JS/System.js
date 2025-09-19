@@ -53,8 +53,8 @@ if (type === "Tv" || type === "TvFimDeJogo") {
 }
 
 // ---------------- TV FIM DE JOGO ---------------- //
-let ListaRespostas = [];
 if (type === "TvFimDeJogo" && RespostasGerais) {
+    let ListaRespostas = [];
     try {
         ListaRespostas = JSON.parse(decodeURIComponent(RespostasGerais));
     } catch (e) {
@@ -62,15 +62,27 @@ if (type === "TvFimDeJogo" && RespostasGerais) {
         ListaRespostas = [];
     }
 
+    const respostasPorJogador = ListaRespostas.map(r => {
+        if (typeof r === "string") return r.split("").map(n => parseInt(n, 10));
+        return Array.isArray(r) ? r : [];
+    });
+
+    const contagem = {};
+    respostasPorJogador.forEach(respJogador => {
+        respJogador.forEach(r => {
+            contagem[r] = 100;
+        });
+    });
+
     document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
-        const totalRespondidos = ListaRespostas.filter(r => r != -1).length;
-        const porcentagem = totalRespondidos ? Math.round(ListaRespostas.filter(r => r == i).length / totalRespondidos * 100) : 0;
+        const porcentagem = contagem[i] || 0;
         item.style.display = "block";
         item.innerText = porcentagem + "%";
     });
 
     TvFimDeJogo();
 }
+
 
 // ---------------- PLAYER END ---------------- //
 if (type === "PlayerEnd") {

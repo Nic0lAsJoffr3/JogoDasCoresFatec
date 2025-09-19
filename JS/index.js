@@ -87,6 +87,7 @@ setInterval(() => {
                 respondeuPorPergunta[RespostaIDLocal] = true;
             }
         }
+        pontosGravados = Math.round(pontosGravados);
         console.log(pontosGravados);
 
         // Grava pontos no Firebase quando o tempo acabar
@@ -266,4 +267,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 2
+// 4

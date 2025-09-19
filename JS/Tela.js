@@ -75,6 +75,8 @@ setInterval(() => {
         document.getElementById("Time").innerText = textoTime;
         document.getElementById("Jogadores").classList.remove("JogadoresRespostas");
     } else if (!FimDeTempo) {
+        TodasAsRespostas = TodasAsRespostas.filter(item => item != null && item.length);
+        console.log(TodasAsRespostas);
         document.getElementById("Perguntas").innerHTML = `
             <iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=TvFimDeJogo&Respostas=${encodeURIComponent(JSON.stringify(TodasAsRespostas))}"></iframe>
         `;
@@ -146,7 +148,7 @@ onValue(jogadoresRef, (snapshot) => {
     }
 
     if (RespostasID !== -1 && !respostaJogador.includes(-1)) {
-        respostaJogador.forEach(r => TodasAsRespostas.push(r));
+            TodasAsRespostas.push(respostaJogador); 
     }
 
     div.textContent = `${jogador.nome}: ${jogador.pontos}`;
