@@ -10,7 +10,6 @@ let RespostasID = -1;
 let jogoRef = ref(db, "Host");
 let respostaRef = ref(db, "Respostas");
 let pontosGravados = 0; // pontos calculados para a pergunta atual
-let respondeuEPontuou = false; // flag para não pontuar infinitamente
 let FimDeTempo = false;
 let Tempo = 0;
 let tempoDaPergunta = 0;
@@ -81,6 +80,7 @@ setInterval(() => {
         const respJogadorArray = RespostaDoJogadorStr.split("").map(n => parseInt(n, 10));
 
         // Calcula pontos se acertou e ainda não pontuou essa pergunta
+        console.log(respondeuPorPergunta);
         if (!respondeuPorPergunta[RespostaIDLocal] &&
             respJogadorArray.some(r => respostaCorretaArray.includes(r)) &&
             respJogadorArray.length > 0) {
