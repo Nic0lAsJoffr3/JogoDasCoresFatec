@@ -62,17 +62,18 @@ if (type === "TvFimDeJogo" && RespostasGerais) {
         ListaRespostas = [];
     }
 
-    const respostasPorJogador = ListaRespostas.map(r => {
-        if (typeof r === "string") return r.split("").map(n => parseInt(n, 10));
-        return Array.isArray(r) ? r : [];
-    });
+     const respostasPorJogador = ListaRespostas.map(r => {
+         if (typeof r === "string") return r.split("").map(n => parseInt(n, 10));
+         return Array.isArray(r) ? r : [];
+     }).filter(arr => arr.length && arr.every(n => typeof n === "number" && !isNaN(n) && n !== -1));
 
     const contagem = {};
-    respostasPorJogador.forEach(respJogador => {
-        respJogador.forEach(r => {
-            contagem[r] = 100;
-        });
-    });
+     respostasPorJogador.forEach(respJogador => {
+         respJogador.forEach(r => {
+             if (!contagem[r]) contagem[r] = 0;
+             contagem[r]++;
+         });
+     });
 
     document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
         const porcentagem = contagem[i] || 0;
