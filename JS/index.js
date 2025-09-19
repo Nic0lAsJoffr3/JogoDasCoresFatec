@@ -24,17 +24,17 @@ onValue(jogoRef, (snapshot) => {
 let respondeuPorPergunta = {};
 
 setInterval(() => {
-    if (RespostaIDLocalAntiga != RespostaIDLocal) {
-        RespostaIDLocalAntiga = RespostaIDLocal;
-        localStorage.setItem("RespostaDoJogador", -1);
-    }
+
     // Inicializa localStorage que não existem
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
-
+    if (RespostaIDLocalAntiga != RespostaIDLocal) {
+        localStorage.setItem("RespostaDoJogador", -1);
+        RespostaIDLocalAntiga = RespostaIDLocal;
+    }
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
     RespostaIDLocal = String(localStorage.getItem("RespostaID") || -1);
-    const RespostaDoJogadorStr = localStorage.getItem("RespostaDoJogador") || "";
+    const RespostaDoJogadorStr = localStorage.getItem("RespostaDoJogador") || -1;
     const Valor = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
 
     if (!jogadorRefKey) return;
@@ -92,7 +92,7 @@ setInterval(() => {
             }
         }
         pontosGravados = Math.round(pontosGravados);
-        console.log(pontosGravados);
+        console.log(pontosGravados+"\n"+RespostaDoJogadorStr);
 
         // Grava pontos no Firebase quando o tempo acabar
         if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
@@ -270,4 +270,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 11
+// 12
