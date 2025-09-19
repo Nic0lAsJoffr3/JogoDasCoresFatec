@@ -101,29 +101,58 @@ onValue(jogadoresRef, (snapshot) => {
     jogadores.sort((a, b) => (b.pontos !== a.pontos ? b.pontos - a.pontos : a.nome.localeCompare(b.nome)));
 
     jogadores.forEach((jogador) => {
-        if (!jogador.perguntas) return;
+    if (!jogador.perguntas) return;
 
-        const div = document.createElement("div");
-        div.classList.add("jogadorName");
+    const div = document.createElement("div");
+    div.classList.add("jogadorName");
 
-        const respostaCorreta = JSON.parse(localStorage.getItem("RespostaCorreta") || "[-1]");
-        const respostaJogador = normalizarResposta(jogador.perguntas[RespostasID]);
+    // --- Recupera e normaliza respostaCorreta ---
+    let respostaCorreta;
+    try {
+        const raw = localStorage.getItem("RespostaCorreta") || "[-1]";
+        let parsed = JSON.parse(raw);
 
-        if (respostaJogador.includes(-1)) {
-            div.classList.add("WaitRespostas");
-        } else if (respostaJogador.some(r => respostaCorreta.includes(r))) {
-            div.classList.add("CorretaRespostas");
-        } else {
-            div.classList.add("ErradaRespostas");
-        }
+        // se não for array, transforma em array
+        if (!Array.isArray(parsed)) parsed = [parsed];
 
-        if (RespostasID !== -1 && !respostaJogador.includes(-1)) {
-            respostaJogador.forEach(r => TodasAsRespostas.push(r));
-        }
+        // converte tudo para números individuais
+        respostaCorreta = parsed.flatMap(item => {
+            if (typeof item === "number") return [item];
+            if (typeof item === "string") return item.split("").map(n => parseInt(n, 10));
+            return [];
+        });
+    } catch {
+        respostaCorreta = [-1];
+    }
 
-        div.textContent = `${jogador.nome}: ${jogador.pontos}`;
-        container.appendChild(div);
+    // --- Normaliza a resposta do jogador ---
+    let respostaJogador = normalizarResposta(jogador.perguntas[RespostasID]) || [];
+    if (!Array.isArray(respostaJogador)) respostaJogador = [respostaJogador];
+
+    // garante que tudo seja número
+    respostaJogador = respostaJogador.flatMap(item => {
+        if (typeof item === "number") return [item];
+        if (typeof item === "string") return item.split("").map(n => parseInt(n, 10));
+        return [];
     });
+
+    // --- Verificações ---
+    if (respostaJogador.includes(-1)) {
+        div.classList.add("WaitRespostas");
+    } else if (respostaJogador.some(r => respostaCorreta.includes(r))) {
+        div.classList.add("CorretaRespostas");
+    } else {
+        div.classList.add("ErradaRespostas");
+    }
+
+    if (RespostasID !== -1 && !respostaJogador.includes(-1)) {
+        respostaJogador.forEach(r => TodasAsRespostas.push(r));
+    }
+
+    div.textContent = `${jogador.nome}: ${jogador.pontos}`;
+    container.appendChild(div);
+});
+
 });
 
 // ---------------- POSTMESSAGE HANDLER PARA IFRAME ---------------- //

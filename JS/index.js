@@ -35,19 +35,18 @@ function enviarResposta(resposta) {
         .catch(err => console.error(err));
 }
 
-// Loop Geral //
 setInterval(() => {
-    // Cria localStorage que não existem //
+    // Inicializa localStorage se não existir
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
 
-    // Constantes //
+    // Constantes
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-    const RespostaIDLocal = String(localStorage.getItem("RespostaID") || -1);
+    const RespostaIDLocal = Number(localStorage.getItem("RespostaID") || -1);
     const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
     const Valor = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
 
-    if (!jogadorRefKey) return;
+    if (!jogadorRefKey || RespostaIDLocal === -1) return;
 
     const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}/`);
     const jogadorRefPerguntas = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
@@ -55,7 +54,7 @@ setInterval(() => {
     // Atualiza dados do jogador
     get(jogadorRef).then(snapshot => {
         if (!snapshot.exists()) {
-            // Nó removido por outra aba
+            // Jogador desconectado por outra aba
             localStorage.removeItem('nomeJogador');
             localStorage.removeItem('jogadorRefKey');
             document.getElementById('off').style.display = 'none';
@@ -63,57 +62,55 @@ setInterval(() => {
             document.querySelector('.Main').style.display = 'none';
             document.querySelector(".Time").style.display = 'none';
             console.log("Jogador desconectado automaticamente (outra aba fechou)");
-            JogadorOnline = false;
-        } else {
-            const dados = snapshot.val();
+            return;
+        }
 
-            // Grava a resposta do jogador se ele respondeu e ainda não foi registrada
-            if (RespostaDoJogador != -1 && dados.perguntas[RespostaIDLocal] == -1) {
-                update(jogadorRefPerguntas, {
-                    [RespostaIDLocal]: RespostaDoJogador
-                }).then(() => {
-                    console.log(`Resposta ${RespostaDoJogador} gravada para pergunta ${RespostaIDLocal}`);
-                }).catch(err => console.error("Erro ao gravar resposta:", err));
-            }
+        const dados = snapshot.val();
 
-            // Calcula pontos apenas se respondeu corretamente e ainda não gravou pontos
-            if (RespostaDoJogador != -1 && RespostaDoJogador == localStorage.getItem("RespostaCorreta") && pontosGravados <= 0) {
-                pontosGravados = Math.max(Tempo, 0) * 123 * Valor;
-            }
+        // Salva a resposta do jogador se ainda não registrada
+        if (RespostaDoJogador != -1 && dados.perguntas[RespostaIDLocal] == -1) {
+            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogador })
+                .then(() => console.log(`Resposta ${RespostaDoJogador} gravada para pergunta ${RespostaIDLocal}`))
+                .catch(err => console.error("Erro ao gravar resposta:", err));
+        }
 
-            // Grava pontos no Firebase quando o tempo acabar
-            if (FimDeTempo && pontosGravados > 0 && RespostaDoJogador != -1) {
-                get(jogadorRef).then(snapshot => {
-                    if (snapshot.exists()) {
-                        const dados = snapshot.val();
-                        const novaPontuacao = (dados.pontos || 0) + pontosGravados;
-                        update(jogadorRef, { pontos: novaPontuacao });
-                        console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
-                        pontosGravados = -1;
-                    }
-                });
-            }
+        // --- Normaliza respostas ---
+        const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "-1";
+        const respostaCorretaArray = respostaCorretaRaw.toString().split("").map(n => parseInt(n, 10));
+
+        const respostaJogadorArray = RespostaDoJogador.toString().split("").map(n => parseInt(n, 10));
+
+        // --- Verifica acerto ---
+        const acertou = respostaJogadorArray.some(r => respostaCorretaArray.includes(r));
+
+        // --- Calcula pontos imediatamente se acertou ---
+        if (respostaJogadorArray[0] !== -1 && acertou && pontosGravados <= 0) {
+            pontosGravados = Math.max(Tempo, 0) * 123 * Valor;
+            const novaPontuacao = (dados.pontos || 0) + pontosGravados;
+            update(jogadorRef, { pontos: novaPontuacao })
+                .then(() => {
+                    console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
+                    pontosGravados = 0; // reseta após gravar
+                })
+                .catch(err => console.error("Erro ao gravar pontos:", err));
         }
     });
 
-    if (RespostasID == -1) return;
-
     // Atualiza dados da pergunta
     get(respostaRef).then((snapshot) => {
-        if (snapshot.exists()) {
-            const dados = snapshot.val();
-            tempoDaPergunta = dados[RespostasID].Time;
-            localStorage.setItem("RespostaCorreta", dados[RespostasID].Resposta);
-            localStorage.setItem("ValorDaRespostaAtual", dados[RespostasID].Valor);
+        if (snapshot.exists() && RespostaIDLocal !== -1) {
+            const dadosPergunta = snapshot.val();
+            tempoDaPergunta = dadosPergunta[RespostaIDLocal].Time;
+            localStorage.setItem("RespostaCorreta", dadosPergunta[RespostaIDLocal].Resposta);
+            localStorage.setItem("ValorDaRespostaAtual", dadosPergunta[RespostaIDLocal].Valor);
         }
     });
 
     // Calcula tempo restante
-    if (tempoRef > 1 && tempoDaPergunta > 0) {
-        Tempo -= tempoRef - Date.now() + tempoDaPergunta * 1000;
-        Tempo /= 1000;
-        Tempo = Math.max(0, -Math.ceil(Tempo));
-    } else return;
+    if (tempoRef > 0 && tempoDaPergunta > 0) {
+        const tempoPassado = Date.now() - tempoRef;
+        Tempo = Math.max(0, tempoDaPergunta - Math.floor(tempoPassado / 1000));
+    }
 
     // Atualiza timer visual
     if (Tempo >= 0) {
@@ -129,12 +126,13 @@ setInterval(() => {
         const iframe = document.querySelector('.IPergunta');
         if (!iframe || !iframe.src.includes("PlayerEnd")) {
             document.querySelector('.Main').innerHTML =
-                `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
+                `<iframe class="IPergunta" src="./Perguntas/${RespostaIDLocal}.html?type=PlayerEnd"></iframe>`;
         }
         FimDeTempo = true;
     }
 
 }, 1000);
+
 
 
 // Função Interna //
