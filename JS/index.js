@@ -6,13 +6,13 @@ import { db, ref, push, set, onValue, get, remove, update, onDisconnect } from "
 // let //
 let JogadorOnline = false;
 let tempoRef;
-let RespostasID = -1;
 let jogoRef = ref(db, "Host");
 let respostaRef = ref(db, "Respostas");
 let pontosGravados = -1; // pontos calculados para a pergunta atual
 let FimDeTempo = false;
 let Tempo = 0;
 let tempoDaPergunta = 0;
+let RespostaIDLocal = -1;
 // Atualizar dados caso tenha mudanças no "Host" //
 onValue(jogoRef, (snapshot) => {
     const dados = snapshot.val();
@@ -28,7 +28,7 @@ setInterval(() => {
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
 
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-    const RespostaIDLocal = String(localStorage.getItem("RespostaID") || -1);
+    RespostaIDLocal = String(localStorage.getItem("RespostaID") || -1);
     const RespostaDoJogadorStr = localStorage.getItem("RespostaDoJogador") || "";
     const Valor = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
 
@@ -54,6 +54,7 @@ setInterval(() => {
 
         // Grava a resposta do jogador se ainda não foi registrada
         if (RespostaDoJogadorStr && dados.perguntas[RespostaIDLocal] == -1) {
+            if (RespostaDoJogadorStr == -1) return;
             update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorStr })
                 .then(() => console.log(`Resposta ${RespostaDoJogadorStr} gravada para pergunta ${RespostaIDLocal}`))
                 .catch(err => console.error("Erro ao gravar resposta:", err));
@@ -68,8 +69,6 @@ setInterval(() => {
 
         if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
             const totalCorretas = respostaCorretaArray.length;
-            const totalRespostas = respJogadorArray.length;
-
             // Conta acertos
             const acertos = respJogadorArray.filter(r => respostaCorretaArray.includes(r)).length;
 
@@ -102,15 +101,15 @@ setInterval(() => {
         }
     });
 
-    if (RespostasID == -1) return;
+    if (RespostaIDLocal == -1) return;
 
     // Atualiza dados da pergunta
     get(respostaRef).then(snapshot => {
         if (snapshot.exists()) {
             const dadosPergunta = snapshot.val();
-            tempoDaPergunta = dadosPergunta[RespostasID].Time;
-            localStorage.setItem("RespostaCorreta", dadosPergunta[RespostasID].Resposta);
-            localStorage.setItem("ValorDaRespostaAtual", dadosPergunta[RespostasID].Valor);
+            tempoDaPergunta = dadosPergunta[RespostaIDLocal].Time;
+            localStorage.setItem("RespostaCorreta", dadosPergunta[RespostaIDLocal].Resposta);
+            localStorage.setItem("ValorDaRespostaAtual", dadosPergunta[RespostaIDLocal].Valor);
         }
     });
 
@@ -135,7 +134,7 @@ setInterval(() => {
         const iframe = document.querySelector('.IPergunta');
         if (!iframe || !iframe.src.includes("PlayerEnd")) {
             document.querySelector('.Main').innerHTML =
-                `<iframe class="IPergunta" src="./Perguntas/${RespostasID}.html?type=PlayerEnd"></iframe>`;
+                `<iframe class="IPergunta" src="./Perguntas/${RespostaIDLocal}.html?type=PlayerEnd"></iframe>`;
         }
         FimDeTempo = true;
     }
@@ -267,4 +266,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 6
+// 7
