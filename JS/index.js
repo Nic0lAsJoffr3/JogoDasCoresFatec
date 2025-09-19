@@ -4,16 +4,16 @@ import { db, ref, push, set, onValue, get, remove, update, onDisconnect } from "
 //-----Var-----//
 
 // let //
-let pontosGravados = -1;
 let JogadorOnline = false;
 let tempoRef;
-let tempoDaPergunta;
-let Tempo = 0;
 let RespostasID = -1;
-let FimDeTempo = false;
 let jogoRef = ref(db, "Host");
 let respostaRef = ref(db, "Respostas");
-
+let pontosGravados = 0; // pontos calculados para a pergunta atual
+let respondeuEPontuou = false; // flag para não pontuar infinitamente
+let FimDeTempo = false;
+let Tempo = 0;
+let tempoDaPergunta = 0;
 // Atualizar dados caso tenha mudanças no "Host" //
 onValue(jogoRef, (snapshot) => {
     const dados = snapshot.val();
@@ -40,10 +40,9 @@ setInterval(() => {
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
 
-    // Constantes
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
     const RespostaIDLocal = Number(localStorage.getItem("RespostaID") || -1);
-    const RespostaDoJogador = localStorage.getItem("RespostaDoJogador");
+    const RespostaDoJogadorRaw = localStorage.getItem("RespostaDoJogador")?.toString() || "-1";
     const Valor = Number(localStorage.getItem("ValorDaRespostaAtual")) || 1;
 
     if (!jogadorRefKey || RespostaIDLocal === -1) return;
@@ -53,51 +52,44 @@ setInterval(() => {
 
     // Atualiza dados do jogador
     get(jogadorRef).then(snapshot => {
-        if (!snapshot.exists()) {
-            // Jogador desconectado por outra aba
-            localStorage.removeItem('nomeJogador');
-            localStorage.removeItem('jogadorRefKey');
-            document.getElementById('off').style.display = 'none';
-            document.querySelector('.Entrar').style.display = 'block';
-            document.querySelector('.Main').style.display = 'none';
-            document.querySelector(".Time").style.display = 'none';
-            console.log("Jogador desconectado automaticamente (outra aba fechou)");
-            return;
-        }
+        if (!snapshot.exists()) return;
 
         const dados = snapshot.val();
 
         // Salva a resposta do jogador se ainda não registrada
-        if (RespostaDoJogador != -1 && dados.perguntas[RespostaIDLocal] == -1) {
-            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogador })
-                .then(() => console.log(`Resposta ${RespostaDoJogador} gravada para pergunta ${RespostaIDLocal}`))
+        if (RespostaDoJogadorRaw !== "-1" && dados.perguntas[RespostaIDLocal] == -1) {
+            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorRaw })
+                .then(() => console.log(`Resposta ${RespostaDoJogadorRaw} gravada para pergunta ${RespostaIDLocal}`))
                 .catch(err => console.error("Erro ao gravar resposta:", err));
         }
+
+        // Se ainda não respondeu, não continua
+        if (RespostaDoJogadorRaw === "-1") return;
 
         // --- Normaliza respostas ---
         const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "-1";
         const respostaCorretaArray = respostaCorretaRaw.toString().split("").map(n => parseInt(n, 10));
-
-        const respostaJogadorArray = RespostaDoJogador.toString().split("").map(n => parseInt(n, 10));
+        const respostaJogadorArray = RespostaDoJogadorRaw.split("").map(n => parseInt(n, 10));
 
         // --- Verifica acerto ---
         const acertou = respostaJogadorArray.some(r => respostaCorretaArray.includes(r));
 
-        // --- Calcula pontos imediatamente se acertou ---
-        if (respostaJogadorArray[0] !== -1 && acertou && pontosGravados <= 0) {
+        // --- Calcula pontos apenas uma vez ---
+        if (!respondeuEPontuou && acertou) {
             pontosGravados = Math.max(Tempo, 0) * 123 * Valor;
             const novaPontuacao = (dados.pontos || 0) + pontosGravados;
+
             update(jogadorRef, { pontos: novaPontuacao })
                 .then(() => {
                     console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
-                    pontosGravados = 0; // reseta após gravar
+                    respondeuEPontuou = true; // impede múltiplas gravações
                 })
                 .catch(err => console.error("Erro ao gravar pontos:", err));
         }
     });
 
     // Atualiza dados da pergunta
-    get(respostaRef).then((snapshot) => {
+    get(respostaRef).then(snapshot => {
         if (snapshot.exists() && RespostaIDLocal !== -1) {
             const dadosPergunta = snapshot.val();
             tempoDaPergunta = dadosPergunta[RespostaIDLocal].Time;
@@ -129,6 +121,7 @@ setInterval(() => {
                 `<iframe class="IPergunta" src="./Perguntas/${RespostaIDLocal}.html?type=PlayerEnd"></iframe>`;
         }
         FimDeTempo = true;
+        respondeuEPontuou = false; // reseta para a próxima pergunta
     }
 
 }, 1000);
