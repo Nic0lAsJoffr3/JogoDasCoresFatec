@@ -75,11 +75,13 @@ if (type === "TvFimDeJogo" && RespostasGerais) {
          });
      });
 
-    document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
-        const porcentagem = contagem[i] || 0;
-        item.style.display = "block";
-        item.innerText = porcentagem + "%";
-    });
+    const totalJogadores = respostasPorJogador.length;
+document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
+    const quantidade = contagem[i] || 0;
+    const porcentagem = totalJogadores > 0 ? Math.round((quantidade / totalJogadores) * 100) : 0;
+    item.style.display = "block";
+    item.innerText = porcentagem + "%";
+});
 
     TvFimDeJogo();
 }

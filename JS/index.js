@@ -68,7 +68,8 @@ setInterval(() => {
         // --- Normaliza a resposta correta e do jogador como arrays de números ---
         const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "";
         const respostaCorretaArray = respostaCorretaRaw.split("").map(n => parseInt(n, 10));
-        const respJogadorArray = RespostaDoJogadorStr.split("").map(n => parseInt(n, 10));
+        const respJogadorArray = String(RespostaDoJogadorStr).split("").map(n => parseInt(n, 10));
+
 
         // Calcula pontos se acertou e ainda não pontuou essa pergunta
 
@@ -92,7 +93,7 @@ setInterval(() => {
             }
         }
         pontosGravados = Math.round(pontosGravados);
-        console.log(pontosGravados+"\n"+RespostaDoJogadorStr);
+        console.log(pontosGravados + "\n" + RespostaDoJogadorStr);
 
         // Grava pontos no Firebase quando o tempo acabar
         if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
@@ -270,4 +271,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 12
+// 13
