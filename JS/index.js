@@ -19,21 +19,6 @@ onValue(jogoRef, (snapshot) => {
     atualizarJogo(dados);
 });
 
-// Função para enviar resposta do jogador
-function enviarResposta(resposta) {
-    const jogadorRefKey = localStorage.getItem('jogadorRefKey');
-    const RespostaIDLocal = localStorage.getItem("RespostaID").toString();
-    if (!jogadorRefKey || RespostaIDLocal == -1) return;
-
-    const jogadorRefPerguntas = ref(db, `Jogadores/${jogadorRefKey}/perguntas/`);
-
-    // Salva localmente e no Firebase
-    localStorage.setItem("RespostaDoJogador", resposta);
-    update(jogadorRefPerguntas, { [RespostaIDLocal]: resposta })
-        .then(() => console.log("Resposta enviada"))
-        .catch(err => console.error(err));
-}
-
 // Flag global para controlar pontuação por pergunta
 let respondeuPorPergunta = {}; 
 
@@ -80,7 +65,7 @@ setInterval(() => {
         const respJogadorArray = RespostaDoJogadorStr.split("").map(n => parseInt(n, 10));
 
         // Calcula pontos se acertou e ainda não pontuou essa pergunta
-        console.log(respondeuPorPergunta);
+        
         if (!respondeuPorPergunta[RespostaIDLocal] &&
             respJogadorArray.some(r => respostaCorretaArray.includes(r)) &&
             respJogadorArray.length > 0) {
@@ -90,7 +75,7 @@ setInterval(() => {
         }
 
         // Grava pontos no Firebase quando o tempo acabar
-        if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
+        if (FimDeTempo && pontosGravados >= 0 && respJogadorArray.length > 0) {
             const novaPontuacao = (dados.pontos || 0) + pontosGravados;
             update(jogadorRef, { pontos: novaPontuacao })
                 .then(() => {
@@ -265,3 +250,5 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaDoJogador", -1);
     localStorage.setItem("RespostaID", -1);
 }
+
+// 1
