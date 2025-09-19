@@ -13,6 +13,12 @@ function Responder() {
         document.querySelectorAll('input[name="resposta"]:checked').forEach((el) => {
             selecionadas += el.value; // concatena direto como string
         });
+
+        if (selecionadas.length > 0) {
+            document.getElementById("AreaQuestionario").style.display = "none";
+            document.getElementById("EsperandoJogadores").style.display = "block";
+        }
+
         // Salva como string (ex.: "01", "26")
         setLocalStorage("RespostaDoJogador", selecionadas);
     }, 700);

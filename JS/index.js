@@ -13,6 +13,7 @@ let FimDeTempo = false;
 let Tempo = 0;
 let tempoDaPergunta = 0;
 let RespostaIDLocal = -1;
+let RespostaIDLocalAntiga = -1;
 // Atualizar dados caso tenha mudanças no "Host" //
 onValue(jogoRef, (snapshot) => {
     const dados = snapshot.val();
@@ -23,6 +24,10 @@ onValue(jogoRef, (snapshot) => {
 let respondeuPorPergunta = {};
 
 setInterval(() => {
+    if (RespostaIDLocalAntiga != RespostaIDLocal) {
+        RespostaIDLocalAntiga = RespostaIDLocal;
+        localStorage.setItem("RespostaDoJogador", -1);
+    }
     // Inicializa localStorage que não existem
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
@@ -265,4 +270,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 10
+// 11
