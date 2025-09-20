@@ -34,10 +34,9 @@ let RespostaJogador = -1;
 if (type === "Player") {
     getLocalStorage("RespostaDoJogador", (resposta) => {
         RespostaJogador = resposta ?? -1;
-        // 'respostasStr' é uma string, ex: "01" ou "26"
         for (let i = 0; i < 6; i++) {
             const checkbox = document.getElementById(`opcao${i + 1}`);
-            checkbox.checked = respostasStr.includes(i.toString());
+            checkbox.checked = RespostaJogador.includes(i.toString());
         }
         if (RespostaJogador != -1) {
             document.getElementById("AreaQuestionario").style.display = "none";
