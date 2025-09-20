@@ -71,6 +71,7 @@ setInterval(() => {
         const respJogadorArray = String(RespostaDoJogadorStr).split("").map(n => parseInt(n, 10));
 
 
+
         // Calcula pontos se acertou e ainda não pontuou essa pergunta
 
         if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
@@ -271,4 +272,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 13
+// 14

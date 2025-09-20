@@ -34,10 +34,19 @@ let RespostaJogador = -1;
 if (type === "Player") {
     getLocalStorage("RespostaDoJogador", (resposta) => {
         RespostaJogador = resposta ?? -1;
-        Player(RespostaJogador);
+        // 'respostasStr' é uma string, ex: "01" ou "26"
+        for (let i = 0; i < 6; i++) {
+            const checkbox = document.getElementById(`opcao${i + 1}`);
+            checkbox.checked = respostasStr.includes(i.toString());
+        }
         if (RespostaJogador != -1) {
             document.getElementById("AreaQuestionario").style.display = "none";
             document.getElementById("EsperandoJogadores").style.display = "block";
+        }
+        else{
+            document.getElementById("AreaQuestionario").style.display = "block";
+            document.getElementById("EsperandoJogadores").style.display = "none";
+
         }
     });
 }
@@ -48,8 +57,9 @@ if (type === "Tv" || type === "TvFimDeJogo") {
     document.querySelectorAll("input").forEach(input => input.style.display = "none");
     const btnEnviar = document.getElementById("EnviarResposta");
     if (btnEnviar) btnEnviar.style.display = "none";
-
-    Tv();
+    for (let i = 0; i < 6; i++) {
+        document.getElementById(`opcao${i + 1}`).disabled = true;
+    }
 }
 
 // ---------------- TV FIM DE JOGO ---------------- //
@@ -62,28 +72,35 @@ if (type === "TvFimDeJogo" && RespostasGerais) {
         ListaRespostas = [];
     }
 
-     const respostasPorJogador = ListaRespostas.map(r => {
-         if (typeof r === "string") return r.split("").map(n => parseInt(n, 10));
-         return Array.isArray(r) ? r : [];
-     }).filter(arr => arr.length && arr.every(n => typeof n === "number" && !isNaN(n) && n !== -1));
+    const respostasPorJogador = ListaRespostas.map(r => {
+        if (typeof r === "string") return r.split("").map(n => parseInt(n, 10));
+        return Array.isArray(r) ? r : [];
+    }).filter(arr => arr.length && arr.every(n => typeof n === "number" && !isNaN(n) && n !== -1));
 
     const contagem = {};
-     respostasPorJogador.forEach(respJogador => {
-         respJogador.forEach(r => {
-             if (!contagem[r]) contagem[r] = 0;
-             contagem[r]++;
-         });
-     });
+    respostasPorJogador.forEach(respJogador => {
+        respJogador.forEach(r => {
+            if (!contagem[r]) contagem[r] = 0;
+            contagem[r]++;
+        });
+    });
 
     const totalJogadores = respostasPorJogador.length;
-document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
-    const quantidade = contagem[i] || 0;
-    const porcentagem = totalJogadores > 0 ? Math.round((quantidade / totalJogadores) * 100) : 0;
-    item.style.display = "block";
-    item.innerText = porcentagem + "%";
-});
-
-    TvFimDeJogo();
+    document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
+        const quantidade = contagem[i] || 0;
+        const porcentagem = totalJogadores > 0 ? Math.round((quantidade / totalJogadores) * 100) : 0;
+        item.style.display = "block";
+        item.innerText = porcentagem + "%";
+    });
+getLocalStorage("RespostaCorreta", (resposta) => {
+        // 'resposta' é string, ex: "05"
+        for (let i = 0; i < 6; i++) {
+            const elemento = document.getElementById(`opcao${i + 1}`);
+            elemento.classList.add(
+                resposta.includes(i.toString()) ? "CorretaTv" : "ErradaTv"
+            );
+        }
+    });
 }
 
 
@@ -91,5 +108,42 @@ document.querySelectorAll(".PorcentagemSelecionados").forEach((item, i) => {
 if (type === "PlayerEnd") {
     const btnEnviar = document.getElementById("EnviarResposta");
     if (btnEnviar) btnEnviar.style.display = "none";
-    PlayerEnd();
+    getLocalStorage("RespostaDoJogador", (resposta) => {
+        const respostas = resposta ?? "";
+        for (let i = 0; i < 6; i++) {
+            const checkbox = document.getElementById(`opcao${i + 1}`);
+            checkbox.disabled = true;
+            checkbox.checked = respostas.includes(i.toString());
+        }
+        setLocalStorage("RespostaDoJogador", "");
+    });
+
+    getLocalStorage("RespostaCorreta", (resposta) => {
+        const corretas = resposta ?? "";
+        for (let i = 0; i < 6; i++) {
+            const elemento = document.getElementById(`opcao${i + 1}`);
+            elemento.classList.add(
+                corretas.includes(i.toString()) ? "Correta" : "Errada"
+            );
+        }
+    });
+}
+
+
+function Responder() {
+    setTimeout(() => {
+        // Monta a string das respostas marcadas
+        let selecionadas = "";
+        document.querySelectorAll('input[name="resposta"]:checked').forEach((el) => {
+            selecionadas += el.value; // concatena direto como string
+        });
+
+        if (selecionadas.length > 0) {
+            document.getElementById("AreaQuestionario").style.display = "none";
+            document.getElementById("EsperandoJogadores").style.display = "block";
+        }
+
+        // Salva como string (ex.: "01", "26")
+        setLocalStorage("RespostaDoJogador", selecionadas);
+    }, 700);
 }
