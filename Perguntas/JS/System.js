@@ -141,6 +141,11 @@ function Responder() {
             document.getElementById("AreaQuestionario").style.display = "none";
             document.getElementById("EsperandoJogadores").style.display = "block";
         }
+        else{
+            
+            document.getElementById("AreaQuestionario").style.display = "block";
+            document.getElementById("EsperandoJogadores").style.display = "none";
+        }
 
         // Salva como string (ex.: "01", "26")
         setLocalStorage("RespostaDoJogador", selecionadas);
