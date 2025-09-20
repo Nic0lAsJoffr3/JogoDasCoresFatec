@@ -57,44 +57,44 @@ setInterval(() => {
 
         const dados = snapshot.val();
 
-        // Grava a resposta do jogador se ainda não foi registrada
-        if (RespostaDoJogadorStr && dados.perguntas[RespostaIDLocal] == -1) {
-            if (RespostaDoJogadorStr == -1) return;
-            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorStr })
-                .then(() => console.log(`Resposta ${RespostaDoJogadorStr} gravada para pergunta ${RespostaIDLocal}`))
-                .catch(err => console.error("Erro ao gravar resposta:", err));
-        }
-
         // --- Normaliza a resposta correta e do jogador como arrays de números ---
         const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "";
         const respostaCorretaArray = respostaCorretaRaw.split("").map(n => parseInt(n, 10));
         const respJogadorArray = String(RespostaDoJogadorStr).split("").map(n => parseInt(n, 10));
 
+        // Grava a resposta do jogador se ainda não foi registrada
+        if (RespostaDoJogadorStr && dados.perguntas[RespostaIDLocal] == -1) {
+            if (RespostaDoJogadorStr == -1) return;
+            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorStr })
+                .then(() => {
+                    console.log(`Resposta ${RespostaDoJogadorStr} gravada para pergunta ${RespostaIDLocal}`)
+                    localStorage.setItem("RespostaDoJogador", -1);
+                    // Calcula pontos se acertou e ainda não pontuou essa pergunta
 
+                    if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
+                        const totalCorretas = respostaCorretaArray.length;
+                        // Conta acertos
+                        const acertos = respJogadorArray.filter(r => respostaCorretaArray.includes(r)).length;
 
-        // Calcula pontos se acertou e ainda não pontuou essa pergunta
+                        // Conta erros (respostas do jogador que não estão nas corretas)
+                        const erros = respJogadorArray.filter(r => !respostaCorretaArray.includes(r)).length;
 
-        if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
-            const totalCorretas = respostaCorretaArray.length;
-            // Conta acertos
-            const acertos = respJogadorArray.filter(r => respostaCorretaArray.includes(r)).length;
+                        // Calcula percentual de acerto considerando penalização por erro
+                        let percentualAcerto = acertos / totalCorretas - erros / totalCorretas;
 
-            // Conta erros (respostas do jogador que não estão nas corretas)
-            const erros = respJogadorArray.filter(r => !respostaCorretaArray.includes(r)).length;
+                        // Garante que o percentual não seja negativo
+                        percentualAcerto = Math.max(percentualAcerto, 0);
 
-            // Calcula percentual de acerto considerando penalização por erro
-            let percentualAcerto = acertos / totalCorretas - erros / totalCorretas;
-
-            // Garante que o percentual não seja negativo
-            percentualAcerto = Math.max(percentualAcerto, 0);
-
-            if (percentualAcerto > 0) {
-                pontosGravados = Math.max(Tempo, 0) * 123 * Valor * percentualAcerto;
-                respondeuPorPergunta[RespostaIDLocal] = true;
-            }
+                        if (percentualAcerto > 0) {
+                            pontosGravados = Math.max(Tempo, 0) * 123 * Valor * percentualAcerto;
+                            respondeuPorPergunta[RespostaIDLocal] = true;
+                        }
+                    }
+                    pontosGravados = Math.round(pontosGravados);
+                    console.log(pontosGravados + "\n" + RespostaDoJogadorStr);
+                })
+                .catch(err => console.error("Erro ao gravar resposta:", err));
         }
-        pontosGravados = Math.round(pontosGravados);
-        console.log(pontosGravados + "\n" + RespostaDoJogadorStr);
 
         // Grava pontos no Firebase quando o tempo acabar
         if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
@@ -272,4 +272,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 15
+// 16
