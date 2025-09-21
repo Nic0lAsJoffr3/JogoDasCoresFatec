@@ -151,3 +151,15 @@ function Responder() {// Monta a string das respostas marcadas
         }
     }, 1000);
 }
+setInterval(()=>{
+    getLocalStorage("RespostaDoJogador", (resposta)=>{
+       if(resposta == null || resposta == ""){
+            document.getElementById("AreaQuestionario").style.display = "block";
+            document.getElementById("EsperandoJogadores").style.display = "none";
+       }
+       else{
+            document.getElementById("AreaQuestionario").style.display = "none";
+            document.getElementById("EsperandoJogadores").style.display = "block";
+       }
+    })
+},100)
