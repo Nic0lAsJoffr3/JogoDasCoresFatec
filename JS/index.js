@@ -294,4 +294,4 @@ function RestartDados() {
     // Limpar Respondeu Por Pergunta
     respondeuPorPergunta = {};
 }
-// 27
+// 27 -
