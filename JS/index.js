@@ -97,7 +97,9 @@ setInterval(() => {
 
             if (percentualAcerto > 0) {
                 pontosGravados = Math.max(Tempo, 0) * 123 * Valor * percentualAcerto;
-                respondeuPorPergunta[RespostaIDLocal] = true;
+                if (RespostaIDLocalAntiga === RespostaIDLocal) {
+                    respondeuPorPergunta[RespostaIDLocal] = true;
+                }
             }
         }
         pontosGravados = Math.round(pontosGravados);
@@ -132,7 +134,7 @@ setInterval(() => {
         Tempo -= tempoRef - Date.now() + tempoDaPergunta * 1000;
         Tempo /= 1000;
         Tempo = Math.max(0, -Math.ceil(Tempo));
-    } 
+    }
 
     // Atualiza timer visual
     if (Tempo >= 0) {
@@ -281,4 +283,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 20
+// 21
