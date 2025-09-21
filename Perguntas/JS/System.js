@@ -35,23 +35,29 @@ if (type === "Player") {
     RespostaJogador = -1;
     getLocalStorage("RespostaDoJogador", (resposta) => {
         RespostaJogador = resposta ?? -1;
+
         for (let i = 0; i < 6; i++) {
-            const checkbox = document.getElementById(`opcao${i + 1}`);
-            checkbox.checked = RespostaJogador.includes(i.toString());
+            const input = document.getElementById(`opcao${i + 1}`);
+            
+            if (!input) continue; // segurança caso não exista
+
+            if (input.type === "checkbox") {
+                input.checked = RespostaJogador.includes(i.toString());
+            } 
+            else if (input.type === "radio") {
+                input.checked = (RespostaJogador == i.toString());
+            }
         }
-        console.log(RespostaJogador);
+
         if (RespostaJogador != -1) {
             document.getElementById("AreaQuestionario").style.display = "none";
             document.getElementById("EsperandoJogadores").style.display = "block";
-        }
-        else {
+        } else {
             document.getElementById("AreaQuestionario").style.display = "block";
             document.getElementById("EsperandoJogadores").style.display = "none";
-
         }
     });
 }
-
 // ---------------- TV ---------------- //
 if (type === "Tv" || type === "TvFimDeJogo") {
     document.querySelectorAll("label").forEach(label => label.classList.add("TVDisplay"));

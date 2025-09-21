@@ -39,7 +39,7 @@ setInterval(() => {
     }
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
     RespostaIDLocal = String(localStorage.getItem("RespostaID") || -1);
-    if (RespostaIDLocalAntiga !== RespostaIDLocal) {
+    if (RespostaIDLocalAntiga !== RespostaIDLocal && RespostaIDLocal != -1) {
         respondeuPorPergunta[RespostaIDLocal] = false;
         RespostaIDLocalAntiga = RespostaIDLocal;
         pontosGravados = -1;
@@ -85,38 +85,39 @@ setInterval(() => {
 
 
         // Calcula pontos se acertou e ainda não pontuou essa pergunta
+        if (RespostaIDLocal != -1) {
+            if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
+                const totalCorretas = respostaCorretaArray.length;
+                // Conta acertos
+                const acertos = respJogadorArray.filter(r => respostaCorretaArray.includes(r)).length;
 
-        if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
-            const totalCorretas = respostaCorretaArray.length;
-            // Conta acertos
-            const acertos = respJogadorArray.filter(r => respostaCorretaArray.includes(r)).length;
+                // Conta erros (respostas do jogador que não estão nas corretas)
+                const erros = respJogadorArray.filter(r => !respostaCorretaArray.includes(r)).length;
 
-            // Conta erros (respostas do jogador que não estão nas corretas)
-            const erros = respJogadorArray.filter(r => !respostaCorretaArray.includes(r)).length;
+                // Calcula percentual de acerto considerando penalização por erro
+                let percentualAcerto = acertos / totalCorretas - erros / totalCorretas;
 
-            // Calcula percentual de acerto considerando penalização por erro
-            let percentualAcerto = acertos / totalCorretas - erros / totalCorretas;
+                // Garante que o percentual não seja negativo
+                percentualAcerto = Math.max(percentualAcerto, 0);
 
-            // Garante que o percentual não seja negativo
-            percentualAcerto = Math.max(percentualAcerto, 0);
+                if (percentualAcerto > 0) {
+                    pontosGravados = Math.max(Tempo, 0) * 123 * Valor * percentualAcerto;
+                    respondeuPorPergunta[RespostaIDLocal] = true;
 
-            if (percentualAcerto > 0) {
-                pontosGravados = Math.max(Tempo, 0) * 123 * Valor * percentualAcerto;
-                respondeuPorPergunta[RespostaIDLocal] = true;
-                
+                }
             }
-        }
-        pontosGravados = Math.round(pontosGravados);
+            pontosGravados = Math.round(pontosGravados);
 
-        // Grava pontos no Firebase quando o tempo acabar
-        if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
-            const novaPontuacao = (dados.pontos || 0) + pontosGravados;
-            update(jogadorRef, { pontos: novaPontuacao })
-                .then(() => {
-                    console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
-                    pontosGravados = -1;
-                })
-                .catch(err => console.error("Erro ao gravar pontos:", err));
+            // Grava pontos no Firebase quando o tempo acabar
+            if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
+                const novaPontuacao = (dados.pontos || 0) + pontosGravados;
+                update(jogadorRef, { pontos: novaPontuacao })
+                    .then(() => {
+                        console.log(`O jogador ${dados.nome} alcançou ${pontosGravados} pontos. Total: ${novaPontuacao}`);
+                        pontosGravados = -1;
+                    })
+                    .catch(err => console.error("Erro ao gravar pontos:", err));
+            }
         }
     });
 
@@ -287,4 +288,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 23
+// 24
