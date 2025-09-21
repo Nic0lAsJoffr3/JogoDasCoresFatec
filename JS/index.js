@@ -3,7 +3,25 @@ import { db, ref, push, set, onValue, get, remove, update, onDisconnect } from "
 
 
 // Flag global para controlar pontuação por pergunta
-let respondeuPorPergunta = {};
+let respondeuPorPergunta = {
+    0: false,
+    1: false,
+    2: false,
+    3: false,
+    4: false,
+    5: false,
+    6: false,
+    7: false,
+    8: false,
+    9: false,
+    10: false,
+    11: false,
+    12: false,
+    13: false,
+    14: false,
+    15: false
+};
+
 RestartDados()
 //-----Var-----//
 
@@ -222,45 +240,45 @@ function Reiniciar() {
 
 // Funções Externas //
 window.addEventListener('load', () => {
-        const nome = localStorage.getItem('nomeJogador');
-        const jogadorRefKey = localStorage.getItem('jogadorRefKey');
+    const nome = localStorage.getItem('nomeJogador');
+    const jogadorRefKey = localStorage.getItem('jogadorRefKey');
 
-        if (nome && jogadorRefKey) {
-            const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
+    if (nome && jogadorRefKey) {
+        const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
 
-            set(jogadorRef, {
-                nome: nome,
-                perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
-                pontos: 0
-            })
-                .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
-                .catch(err => console.error(err));
-
-            onDisconnect(jogadorRef).remove();
-            document.getElementById('off').style.display = 'block';
-            document.querySelector('.Entrar').style.display = 'none';
-            document.querySelector('.Main').style.display = 'block';
-            document.querySelector(".Time").style.display = 'none';
-            Reiniciar();
-        }
-});
-
-window.EntrarNoJogo = function (name) {
-  
-        const jogadoresRef = ref(db, 'Jogadores');
-        const novoJogadorRef = push(jogadoresRef); // cria nó único
-        localStorage.setItem('jogadorRefKey', novoJogadorRef.key);
-
-        set(novoJogadorRef, {
-            nome: name,
+        set(jogadorRef, {
+            nome: nome,
             perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
             pontos: 0
         })
-            .then(() => { console.log("Jogador entrou no jogo"); JogadorOnline = true; })
+            .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
             .catch(err => console.error(err));
 
+        onDisconnect(jogadorRef).remove();
+        document.getElementById('off').style.display = 'block';
+        document.querySelector('.Entrar').style.display = 'none';
+        document.querySelector('.Main').style.display = 'block';
+        document.querySelector(".Time").style.display = 'none';
         Reiniciar();
-        onDisconnect(novoJogadorRef).remove();
+    }
+});
+
+window.EntrarNoJogo = function (name) {
+
+    const jogadoresRef = ref(db, 'Jogadores');
+    const novoJogadorRef = push(jogadoresRef); // cria nó único
+    localStorage.setItem('jogadorRefKey', novoJogadorRef.key);
+
+    set(novoJogadorRef, {
+        nome: name,
+        perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
+        pontos: 0
+    })
+        .then(() => { console.log("Jogador entrou no jogo"); JogadorOnline = true; })
+        .catch(err => console.error(err));
+
+    Reiniciar();
+    onDisconnect(novoJogadorRef).remove();
 }
 
 // Remove jogador manualmente (sem recarregar a página)
@@ -292,6 +310,24 @@ function RestartDados() {
     // Limpar sessionStorage
     sessionStorage.clear();
     // Limpar Respondeu Por Pergunta
-    respondeuPorPergunta = {};
+    respondeuPorPergunta = {
+        0: false,
+        1: false,
+        2: false,
+        3: false,
+        4: false,
+        5: false,
+        6: false,
+        7: false,
+        8: false,
+        9: false,
+        10: false,
+        11: false,
+        12: false,
+        13: false,
+        14: false,
+        15: false
+    };
+
 }
-// 27 -
+// 28
