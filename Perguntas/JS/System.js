@@ -32,6 +32,7 @@ let RespostaJogador = -1;
 
 // ---------------- PLAYER ---------------- //
 if (type === "Player") {
+    RespostaJogador = -1;
     getLocalStorage("RespostaDoJogador", (resposta) => {
         RespostaJogador = resposta ?? -1;
         for (let i = 0; i < 6; i++) {
@@ -42,7 +43,7 @@ if (type === "Player") {
             document.getElementById("AreaQuestionario").style.display = "none";
             document.getElementById("EsperandoJogadores").style.display = "block";
         }
-        else{
+        else {
             document.getElementById("AreaQuestionario").style.display = "block";
             document.getElementById("EsperandoJogadores").style.display = "none";
 
@@ -91,7 +92,7 @@ if (type === "TvFimDeJogo" && RespostasGerais) {
         item.style.display = "block";
         item.innerText = porcentagem + "%";
     });
-getLocalStorage("RespostaCorreta", (resposta) => {
+    getLocalStorage("RespostaCorreta", (resposta) => {
         // 'resposta' é string, ex: "05"
         for (let i = 0; i < 6; i++) {
             const elemento = document.getElementById(`opcao${i + 1}`);
@@ -129,25 +130,22 @@ if (type === "PlayerEnd") {
 }
 
 
-function Responder() {
-    setTimeout(() => {
-        // Monta a string das respostas marcadas
-        let selecionadas = "";
-        document.querySelectorAll('input[name="resposta"]:checked').forEach((el) => {
-            selecionadas += el.value; // concatena direto como string
-        });
+function Responder() {// Monta a string das respostas marcadas
+    let selecionadas = "";
+    document.querySelectorAll('input[name="resposta"]:checked').forEach((el) => {
+        selecionadas += el.value; // concatena direto como string
+    });
 
+    // Salva como string (ex.: "01", "26")
+    setLocalStorage("RespostaDoJogador", selecionadas);
+    setTimeout(() => {
         if (selecionadas.length > 0) {
             document.getElementById("AreaQuestionario").style.display = "none";
             document.getElementById("EsperandoJogadores").style.display = "block";
         }
-        else{
-            
+        else {
             document.getElementById("AreaQuestionario").style.display = "block";
             document.getElementById("EsperandoJogadores").style.display = "none";
         }
-
-        // Salva como string (ex.: "01", "26")
-        setLocalStorage("RespostaDoJogador", selecionadas);
-    }, 700);
+    }, 1000);
 }

@@ -65,10 +65,11 @@ setInterval(() => {
 
         // Grava a resposta do jogador se ainda não foi registrada
         if (RespostaDoJogadorStr && dados.perguntas[RespostaIDLocal] == -1) {
-            if (RespostaDoJogadorStr == -1) return;
-            update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorStr })
-                .then(() => console.log(`Resposta ${RespostaDoJogadorStr} gravada para pergunta ${RespostaIDLocal}`))
-                .catch(err => console.error("Erro ao gravar resposta:", err));
+            if (RespostaDoJogadorStr != -1) {
+                update(jogadorRefPerguntas, { [RespostaIDLocal]: RespostaDoJogadorStr })
+                    .then(() => console.log(`Resposta ${RespostaDoJogadorStr} gravada para pergunta ${RespostaIDLocal}`))
+                    .catch(err => console.error("Erro ao gravar resposta:", err));
+            }
         }
 
         // --- Normaliza a resposta correta e do jogador como arrays de números ---
@@ -114,24 +115,25 @@ setInterval(() => {
         }
     });
 
-    if (RespostaIDLocal == -1) return;
+    if (RespostaIDLocal != -1) {
 
-    // Atualiza dados da pergunta
-    get(respostaRef).then(snapshot => {
-        if (snapshot.exists()) {
-            const dadosPergunta = snapshot.val();
-            tempoDaPergunta = dadosPergunta[RespostaIDLocal].Time;
-            localStorage.setItem("RespostaCorreta", dadosPergunta[RespostaIDLocal].Resposta);
-            localStorage.setItem("ValorDaRespostaAtual", dadosPergunta[RespostaIDLocal].Valor);
-        }
-    });
+        // Atualiza dados da pergunta
+        get(respostaRef).then(snapshot => {
+            if (snapshot.exists()) {
+                const dadosPergunta = snapshot.val();
+                tempoDaPergunta = dadosPergunta[RespostaIDLocal].Time;
+                localStorage.setItem("RespostaCorreta", dadosPergunta[RespostaIDLocal].Resposta);
+                localStorage.setItem("ValorDaRespostaAtual", dadosPergunta[RespostaIDLocal].Valor);
+            }
+        });
+    }
 
     // Calcula tempo restante
     if (tempoRef > 1 && tempoDaPergunta > 0) {
         Tempo -= tempoRef - Date.now() + tempoDaPergunta * 1000;
         Tempo /= 1000;
         Tempo = Math.max(0, -Math.ceil(Tempo));
-    } else return;
+    } 
 
     // Atualiza timer visual
     if (Tempo >= 0) {
@@ -142,14 +144,16 @@ setInterval(() => {
         document.getElementById("Time").innerText = textoTime;
     }
 
-    // Quando o tempo acabar, vai para a tela final
-    if (Tempo <= 0 && !FimDeTempo) {
-        const iframe = document.querySelector('.IPergunta');
-        if (!iframe || !iframe.src.includes("PlayerEnd")) {
-            document.querySelector('.Main').innerHTML =
-                `<iframe class="IPergunta" src="./Perguntas/${RespostaIDLocal}.html?type=PlayerEnd"></iframe>`;
+    if (RespostaIDLocal != -1) {
+        // Quando o tempo acabar, vai para a tela final
+        if (Tempo <= 0 && !FimDeTempo) {
+            const iframe = document.querySelector('.IPergunta');
+            if (!iframe || !iframe.src.includes("PlayerEnd")) {
+                document.querySelector('.Main').innerHTML =
+                    `<iframe class="IPergunta" src="./Perguntas/${RespostaIDLocal}.html?type=PlayerEnd"></iframe>`;
+            }
+            FimDeTempo = true;
         }
-        FimDeTempo = true;
     }
 }, 1000);
 
@@ -278,4 +282,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 18
+// 19
