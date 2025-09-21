@@ -79,8 +79,8 @@ setInterval(() => {
         const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "";
         const respostaCorretaArray = respostaCorretaRaw.split("").map(n => parseInt(n, 10)); 
         let respJogadorArray;
-        if (RespostaDoJogadorStr === -1 || RespostaDoJogadorStr === "-1") {
-            respJogadorArray = [-1];
+        if (RespostaDoJogadorStr <= -1 || RespostaDoJogadorStr === "-1") {
+            respJogadorArray = [];
         } else {
             respJogadorArray = String(RespostaDoJogadorStr)
                 .split("")
@@ -302,4 +302,4 @@ function RestartDados() {
     respondeuPorPergunta = {};
 
 }
-// 30
+// 31
