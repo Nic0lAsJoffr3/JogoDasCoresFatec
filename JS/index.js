@@ -222,8 +222,6 @@ function Reiniciar() {
 
 // Funções Externas //
 window.addEventListener('load', () => {
-    RestartDados();
-    setTimeout(() => {
         const nome = localStorage.getItem('nomeJogador');
         const jogadorRefKey = localStorage.getItem('jogadorRefKey');
 
@@ -245,12 +243,10 @@ window.addEventListener('load', () => {
             document.querySelector(".Time").style.display = 'none';
             Reiniciar();
         }
-    }, 1000);
 });
 
 window.EntrarNoJogo = function (name) {
-    RestartDados();
-    setTimeout(() => {
+  
         const jogadoresRef = ref(db, 'Jogadores');
         const novoJogadorRef = push(jogadoresRef); // cria nó único
         localStorage.setItem('jogadorRefKey', novoJogadorRef.key);
@@ -265,7 +261,6 @@ window.EntrarNoJogo = function (name) {
 
         Reiniciar();
         onDisconnect(novoJogadorRef).remove();
-    }, 500);
 }
 
 // Remove jogador manualmente (sem recarregar a página)
@@ -299,4 +294,4 @@ function RestartDados() {
     // Limpar Respondeu Por Pergunta
     respondeuPorPergunta = {};
 }
-// 26
+// 27
