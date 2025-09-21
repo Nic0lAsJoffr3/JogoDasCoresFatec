@@ -3,24 +3,7 @@ import { db, ref, push, set, onValue, get, remove, update, onDisconnect } from "
 
 
 // Flag global para controlar pontuação por pergunta
-let respondeuPorPergunta = {
-    0: false,
-    1: false,
-    2: false,
-    3: false,
-    4: false,
-    5: false,
-    6: false,
-    7: false,
-    8: false,
-    9: false,
-    10: false,
-    11: false,
-    12: false,
-    13: false,
-    14: false,
-    15: false
-};
+let respondeuPorPergunta = {};
 
 RestartDados()
 //-----Var-----//
@@ -94,8 +77,15 @@ setInterval(() => {
 
         // --- Normaliza a resposta correta e do jogador como arrays de números ---
         const respostaCorretaRaw = localStorage.getItem("RespostaCorreta") || "";
-        const respostaCorretaArray = respostaCorretaRaw.split("").map(n => parseInt(n, 10));
-        const respJogadorArray = String(RespostaDoJogadorStr).split("").map(n => parseInt(n, 10));
+        const respostaCorretaArray = respostaCorretaRaw.split("").map(n => parseInt(n, 10)); 
+        let respJogadorArray;
+        if (RespostaDoJogadorStr === -1 || RespostaDoJogadorStr === "-1") {
+            respJogadorArray = [-1];
+        } else {
+            respJogadorArray = String(RespostaDoJogadorStr)
+                .split("")
+                .map(n => parseInt(n, 10));
+        }
 
 
         console.log(respJogadorArray);
@@ -309,24 +299,7 @@ function RestartDados() {
     // Limpar sessionStorage
     sessionStorage.clear();
     // Limpar Respondeu Por Pergunta
-    respondeuPorPergunta = {
-        0: false,
-        1: false,
-        2: false,
-        3: false,
-        4: false,
-        5: false,
-        6: false,
-        7: false,
-        8: false,
-        9: false,
-        10: false,
-        11: false,
-        12: false,
-        13: false,
-        14: false,
-        15: false
-    };
+    respondeuPorPergunta = {};
 
 }
-// 29
+// 30
