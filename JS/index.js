@@ -282,4 +282,4 @@ window.SairDoJogo = function () {
     localStorage.setItem("RespostaID", -1);
 }
 
-// 19
+// 20

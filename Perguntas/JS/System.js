@@ -39,6 +39,7 @@ if (type === "Player") {
             const checkbox = document.getElementById(`opcao${i + 1}`);
             checkbox.checked = RespostaJogador.includes(i.toString());
         }
+        console.log(RespostaJogador);
         if (RespostaJogador != -1) {
             document.getElementById("AreaQuestionario").style.display = "none";
             document.getElementById("EsperandoJogadores").style.display = "block";
@@ -139,6 +140,7 @@ function Responder() {// Monta a string das respostas marcadas
     // Salva como string (ex.: "01", "26")
     setLocalStorage("RespostaDoJogador", selecionadas);
     setTimeout(() => {
+        console.log(selecionadas + " \n "+ selecionadas.length)
         if (selecionadas.length > 0) {
             document.getElementById("AreaQuestionario").style.display = "none";
             document.getElementById("EsperandoJogadores").style.display = "block";
