@@ -1,6 +1,11 @@
 // importa conexão com banco de dados //
 import { db, ref, push, set, onValue, get, remove, update, onDisconnect } from "./System.js";
 
+
+// Limpar localStorage
+localStorage.clear();
+// Limpar sessionStorage
+sessionStorage.clear();
 //-----Var-----//
 
 // let //
@@ -97,9 +102,8 @@ setInterval(() => {
 
             if (percentualAcerto > 0) {
                 pontosGravados = Math.max(Tempo, 0) * 123 * Valor * percentualAcerto;
-                if (RespostaIDLocalAntiga === RespostaIDLocal) {
-                    respondeuPorPergunta[RespostaIDLocal] = true;
-                }
+                respondeuPorPergunta[RespostaIDLocal] = true;
+                
             }
         }
         pontosGravados = Math.round(pontosGravados);
