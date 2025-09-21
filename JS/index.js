@@ -45,7 +45,6 @@ onValue(jogoRef, (snapshot) => {
 
 
 setInterval(() => {
-    console.log(respondeuPorPergunta)
     // Inicializa localStorage que não existem
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
@@ -99,7 +98,7 @@ setInterval(() => {
         const respJogadorArray = String(RespostaDoJogadorStr).split("").map(n => parseInt(n, 10));
 
 
-
+        console.log(respJogadorArray);
         // Calcula pontos se acertou e ainda não pontuou essa pergunta
         if (RespostaIDLocal != -1) {
             if (!respondeuPorPergunta[RespostaIDLocal] && respJogadorArray.length > 0) {
@@ -330,4 +329,4 @@ function RestartDados() {
     };
 
 }
-// 28
+// 29
