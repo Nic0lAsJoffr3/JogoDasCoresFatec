@@ -2,10 +2,9 @@
 import { db, ref, push, set, onValue, get, remove, update, onDisconnect } from "./System.js";
 
 
-// Limpar localStorage
-localStorage.clear();
-// Limpar sessionStorage
-sessionStorage.clear();
+// Flag global para controlar pontuação por pergunta
+let respondeuPorPergunta = {};
+RestartDados()
 //-----Var-----//
 
 // let //
@@ -25,8 +24,7 @@ onValue(jogoRef, (snapshot) => {
     atualizarJogo(dados);
 });
 
-// Flag global para controlar pontuação por pergunta
-let respondeuPorPergunta = {};
+
 
 setInterval(() => {
     console.log(respondeuPorPergunta)
@@ -149,8 +147,7 @@ setInterval(() => {
         const textoTime = (minutos > 9 ? minutos : "0" + minutos) + ":" + (segundos > 9 ? segundos : "0" + segundos);
         document.getElementById("Time").innerText = textoTime;
     }
-
-    if (RespostaIDLocal != -1) {
+    else if (RespostaIDLocal != -1) {
         // Quando o tempo acabar, vai para a tela final
         if (Tempo <= 0 && !FimDeTempo) {
             const iframe = document.querySelector('.IPergunta');
@@ -225,6 +222,7 @@ function Reiniciar() {
 
 // Funções Externas //
 window.addEventListener('load', () => {
+    RestartDados();
     const nome = localStorage.getItem('nomeJogador');
     const jogadorRefKey = localStorage.getItem('jogadorRefKey');
 
@@ -249,6 +247,7 @@ window.addEventListener('load', () => {
 });
 
 window.EntrarNoJogo = function (name) {
+    RestartDados();
     const jogadoresRef = ref(db, 'Jogadores');
     const novoJogadorRef = push(jogadoresRef); // cria nó único
     localStorage.setItem('jogadorRefKey', novoJogadorRef.key);
@@ -281,11 +280,19 @@ window.SairDoJogo = function () {
     document.getElementById('off').style.display = 'none';
     document.querySelector('.Entrar').style.display = 'block';
     document.querySelector(".Time").style.display = 'none';
-
+    
     localStorage.removeItem('jogadorRefKey');
     localStorage.removeItem('nomeJogador');
     localStorage.setItem("RespostaDoJogador", -1);
     localStorage.setItem("RespostaID", -1);
+    RestartDados();
 }
-
-// 24
+function RestartDados() {
+    // Limpar localStorage
+    localStorage.clear();
+    // Limpar sessionStorage
+    sessionStorage.clear();
+    // Limpar Respondeu Por Pergunta
+    respondeuPorPergunta = {};
+}
+// 25
