@@ -1,0 +1,72 @@
+@property --angleinput {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@property --radiusbutton {
+    syntax: "<lenght>";
+    inherits: false;
+    initial-value: 10px;
+}
+
+.checkbox-option input+label:before {
+    content: "";
+    display: inline-block;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    transform: rotate(var(--angleinput)) translateY(-2px);
+    border-radius: 25%;
+    background-color: transparent;
+    box-sizing: border-box;
+    border: 1px solid white;
+
+    cursor: pointer;
+    vertical-align: middle;
+    transition: 500ms;
+}
+
+.checkbox-option input:checked+label:before {
+    box-shadow: transparent 0px 0px 1px;
+    border-color: transparent;
+    --angleinput: -360deg;
+    background: transparent url("../IMG/Extras/orange.png") center no-repeat fixed;
+    background-size: 22px;
+    transform: rotate(var(--angleinput)) translateY(-2px);
+    width: 20px;
+    border-radius: 50%;
+    transition: 750ms;
+}
+
+.checkbox-option input:checked+label {
+    color: #ffd0a9;
+    transition: 500ms cubic-bezier(0.7, 0.41, 0.66, 0.98);
+}
+
+.inputs button {
+    cursor: pointer;
+    margin: 0 auto;
+    margin-top: 30px;
+    width: 90%;
+    height: 50px;
+    font-size: 30px;
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    border-bottom-left-radius: 10px;
+    --radiusbutton: 10px;
+    border-radius: var(--radiusbutton);
+    transform: translateY(-30px);
+    transition: 100ms;
+}
+
+.inputs button:focus {
+    outline: none;
+    background: #eb7507;
+    box-shadow: #0e6621 0px 0px 10px;
+    border-color: #2011a7;
+    transform: translateY(-30px) scale(1.05);
+    --radiusbutton: 25px;
+    transition: 1s;
+}

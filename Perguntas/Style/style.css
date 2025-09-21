@@ -1,5 +1,6 @@
 body {
     background-image: none;
+    background-color: black;
 }
 
 .radio-option label,
@@ -45,6 +46,7 @@ h3 {
     .ImgReferencia {
         display: block;
         width: 100vw;
+        max-height: 30vh;
         margin: 0 auto;
         border-radius: 30px;
     }
