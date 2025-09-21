@@ -24,7 +24,7 @@ onValue(jogoRef, (snapshot) => {
 let respondeuPorPergunta = {};
 
 setInterval(() => {
-
+    console.log(respondeuPorPergunta)
     // Inicializa localStorage que não existem
     if (localStorage.getItem("RespostaID") == null) localStorage.setItem("RespostaID", -1);
     if (localStorage.getItem("RespostaDoJogador") == null) localStorage.setItem("RespostaDoJogador", -1);
@@ -101,7 +101,6 @@ setInterval(() => {
             }
         }
         pontosGravados = Math.round(pontosGravados);
-        console.log(pontosGravados + "\n" + RespostaDoJogadorStr);
 
         // Grava pontos no Firebase quando o tempo acabar
         if (FimDeTempo && pontosGravados > 0 && respJogadorArray.length > 0) {
