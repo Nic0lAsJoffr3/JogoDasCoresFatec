@@ -223,45 +223,49 @@ function Reiniciar() {
 // Funções Externas //
 window.addEventListener('load', () => {
     RestartDados();
-    const nome = localStorage.getItem('nomeJogador');
-    const jogadorRefKey = localStorage.getItem('jogadorRefKey');
+    setTimeout(() => {
+        const nome = localStorage.getItem('nomeJogador');
+        const jogadorRefKey = localStorage.getItem('jogadorRefKey');
 
-    if (nome && jogadorRefKey) {
-        const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
+        if (nome && jogadorRefKey) {
+            const jogadorRef = ref(db, `Jogadores/${jogadorRefKey}`);
 
-        set(jogadorRef, {
-            nome: nome,
-            perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
-            pontos: 0
-        })
-            .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
-            .catch(err => console.error(err));
+            set(jogadorRef, {
+                nome: nome,
+                perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
+                pontos: 0
+            })
+                .then(() => { console.log("Jogador reconectado automaticamente"); JogadorOnline = true; })
+                .catch(err => console.error(err));
 
-        onDisconnect(jogadorRef).remove();
-        document.getElementById('off').style.display = 'block';
-        document.querySelector('.Entrar').style.display = 'none';
-        document.querySelector('.Main').style.display = 'block';
-        document.querySelector(".Time").style.display = 'none';
-        Reiniciar();
-    }
+            onDisconnect(jogadorRef).remove();
+            document.getElementById('off').style.display = 'block';
+            document.querySelector('.Entrar').style.display = 'none';
+            document.querySelector('.Main').style.display = 'block';
+            document.querySelector(".Time").style.display = 'none';
+            Reiniciar();
+        }
+    }, 1000);
 });
 
 window.EntrarNoJogo = function (name) {
     RestartDados();
-    const jogadoresRef = ref(db, 'Jogadores');
-    const novoJogadorRef = push(jogadoresRef); // cria nó único
-    localStorage.setItem('jogadorRefKey', novoJogadorRef.key);
+    setTimeout(() => {
+        const jogadoresRef = ref(db, 'Jogadores');
+        const novoJogadorRef = push(jogadoresRef); // cria nó único
+        localStorage.setItem('jogadorRefKey', novoJogadorRef.key);
 
-    set(novoJogadorRef, {
-        nome: name,
-        perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
-        pontos: 0
-    })
-        .then(() => { console.log("Jogador entrou no jogo"); JogadorOnline = true; })
-        .catch(err => console.error(err));
+        set(novoJogadorRef, {
+            nome: name,
+            perguntas: { "0": -1, "1": -1, "2": -1, "3": -1, "4": -1, "5": -1, "6": -1, "7": -1, "8": -1, "9": -1, "10": -1, "11": -1, "12": -1, "13": -1, "14": -1, "15": -1 },
+            pontos: 0
+        })
+            .then(() => { console.log("Jogador entrou no jogo"); JogadorOnline = true; })
+            .catch(err => console.error(err));
 
-    Reiniciar();
-    onDisconnect(novoJogadorRef).remove();
+        Reiniciar();
+        onDisconnect(novoJogadorRef).remove();
+    }, 500);
 }
 
 // Remove jogador manualmente (sem recarregar a página)
@@ -280,7 +284,7 @@ window.SairDoJogo = function () {
     document.getElementById('off').style.display = 'none';
     document.querySelector('.Entrar').style.display = 'block';
     document.querySelector(".Time").style.display = 'none';
-    
+
     localStorage.removeItem('jogadorRefKey');
     localStorage.removeItem('nomeJogador');
     localStorage.setItem("RespostaDoJogador", -1);
@@ -295,4 +299,4 @@ function RestartDados() {
     // Limpar Respondeu Por Pergunta
     respondeuPorPergunta = {};
 }
-// 25
+// 26
